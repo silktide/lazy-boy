@@ -3,6 +3,11 @@
 
   },
   "services": {
-
+    "routeLoader": {
+      "class": "Silktide\\CookieCutter\\Config\\RouteLoader",
+      "arguments": [
+        "@app"
+      ]
+    }
   }
 }
