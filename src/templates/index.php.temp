@@ -2,10 +2,16 @@
 include_once("app/bootstrap.php");
 
 use Silktide\LazyBoy\Controller\FrontController;
+use Silex\Provider\ServiceControllerServiceProvider;
 
 /** @var Silktide\Syringe\ContainerBuilder $builder */
 
 $configDir = __DIR__ . "/app/config";
 
-$frontController = new FrontController($builder, $configDir);
+$frontController = new FrontController(
+    $builder,
+    $configDir,
+    "Silex\\Application",
+    new ServiceControllerServiceProvider()
+);
 $frontController->runApplication();

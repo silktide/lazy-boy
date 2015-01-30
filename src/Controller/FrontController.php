@@ -15,6 +15,8 @@ use Silex\Provider\ServiceControllerServiceProvider;
 class FrontController 
 {
 
+    const DEFAULT_APPLICATION_CLASS = "Silex\\Application";
+
     /**
      * @var ContainerBuilder
      */
@@ -26,19 +28,40 @@ class FrontController
     protected $configDir;
 
     /**
+     * @var string
+     */
+    protected $applicationClass;
+
+    /**
+     * @var ServiceControllerServiceProvider
+     */
+    protected $serviceProvider;
+
+    /**
      * @param ContainerBuilder $builder
      * @param string $configDir
+     * @param string $applicationClass
+     * @param ServiceControllerServiceProvider $serviceProvider
      */
-    public function __construct(ContainerBuilder $builder, $configDir)
+    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, ServiceControllerServiceProvider $serviceProvider)
     {
         $this->builder = $builder;
         $this->configDir = $configDir;
+        $this->setApplicationClass($applicationClass);
+        $this->serviceProvider = $serviceProvider;
+    }
+
+    protected function setApplicationClass($applicationClass) {
+        if ($applicationClass != self::DEFAULT_APPLICATION_CLASS && !is_subclass_of($applicationClass, self::DEFAULT_APPLICATION_CLASS)) {
+            throw new \InvalidArgumentException(sprintf("The class '%s' is not a subclass of '%s'", $applicationClass, self::DEFAULT_APPLICATION_CLASS));
+        }
+        $this->applicationClass = $applicationClass;
     }
 
     public function runApplication()
     {
         // create application
-        $this->builder->setContainerClass("Silex\\Application");
+        $this->builder->setContainerClass($this->applicationClass);
         /** @var Application $application */
         $application = $this->builder->createContainer();
         $application["app"] = function() use ($application) {
@@ -46,7 +69,7 @@ class FrontController
         };
 
         // register service controller provider
-        $application->register(new ServiceControllerServiceProvider());
+        $application->register($this->serviceProvider);
 
         // load routes
         /** @var RouteLoader $routeLoader */
