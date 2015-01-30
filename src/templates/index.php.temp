@@ -1,0 +1,11 @@
+<?php
+include_once("app/bootstrap.php");
+
+use Silktide\LazyBoy\Controller\FrontController;
+
+/** @var Silktide\Syringe\ContainerBuilder $builder */
+
+$configDir = __DIR__ . "/app/config";
+
+$frontController = new FrontController($builder, $configDir);
+$frontController->runApplication();

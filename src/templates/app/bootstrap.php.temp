@@ -1,0 +1,22 @@
+<?php
+
+include_once(__DIR__ . "/../vendor/autoload.php");
+
+use Silktide\Syringe\ReferenceResolver;
+use Silktide\Syringe\ContainerBuilder;
+use Silktide\Syringe\Loader\JsonLoader;
+{{puzzleConfigUseStatement}}
+
+$resolver = new ReferenceResolver();
+$loader = new JsonLoader();
+$configPaths = [
+    __DIR__ . "/config"
+];
+
+$builder = new ContainerBuilder($resolver, $configPaths);
+
+$builder->addLoader($loader);
+
+{{puzzleConfigLoadFiles}}
+$builder->addConfigFile("app.json");
+$builder->addConfigFile("services.json");

@@ -1,0 +1,5 @@
+{
+  "parameters": {
+    "app.dir": "{{appDir}}"
+  }
+}
