@@ -4,7 +4,7 @@
   },
   "services": {
     "routeLoader": {
-      "class": "Silktide\\CookieCutter\\Config\\RouteLoader",
+      "class": "Silktide\\LazyBoy\\Config\\RouteLoader",
       "arguments": [
         "@app"
       ]
