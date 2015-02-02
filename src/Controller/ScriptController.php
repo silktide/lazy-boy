@@ -20,7 +20,7 @@ class ScriptController
         $composer = $event->getComposer();
 
         // template dir
-        $templateDir = realpath(__DIR__ . "../templates") . "/";
+        $templateDir = realpath(__DIR__ . "/../templates") . "/";
         // get app dir
         $appDir = realpath($composer->getConfig()->get("vendor-dir") . "/../");
 
@@ -117,6 +117,19 @@ class ScriptController
         foreach ($replacements as $search => $replacement) {
             $search = '{{' . $search . '}}';
             $contents = str_replace($search, $replacement, $contents);
+        }
+
+        // create directory structure if necessary
+        if (strpos($outputFilePath, "/") !== false) {
+            $dirs = explode("/", $outputFilePath);
+            array_pop($dirs);
+            $currentDir = "/";
+            foreach ($dirs as $dir) {
+                if (!is_dir($currentDir . $dir)) {
+                    mkdir($currentDir . $dir, 0777);
+                }
+                $currentDir .= $dir . "/";
+            }
         }
 
         file_put_contents($outputFilePath, $contents);
