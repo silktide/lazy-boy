@@ -4,6 +4,7 @@
  */
 namespace Silktide\LazyBoy\Controller;
 
+use Composer\IO\IOInterface;
 use Composer\Script\Event;
 use Silktide\LazyBoy\Exception\InstallationException;
 use Composer\Package\PackageInterface;
@@ -94,13 +95,13 @@ class ScriptController
             }
         }
 
-
+        $output = $event->getIO();
         foreach ($templates as $template) {
-            static::processTemplate($template[0], $template[1], $template[2]);
+            static::processTemplate($template[0], $template[1], $template[2], $output);
         }
     }
 
-    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "")
+    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "", IOInterface $output)
     {
         if (file_exists($outputFilePath)) {
             // if the output file exists, DO NOT overwrite it
@@ -119,6 +120,7 @@ class ScriptController
         }
 
         file_put_contents($outputFilePath, $contents);
+        $output->write("<info>LazyBoy:</info> <comment>Created file '$outputFilePath'</comment>");
     }
 
 } 
