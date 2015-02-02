@@ -6,6 +6,7 @@ namespace Silktide\LazyBoy\Controller;
 
 use Composer\Script\Event;
 use Silktide\LazyBoy\Exception\InstallationException;
+use Composer\Package\PackageInterface;
 
 /**
  *
@@ -16,8 +17,6 @@ class ScriptController
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
-
-        $templates = [];
 
         // template dir
         $templateDir = realpath(__DIR__ . "../templates") . "/";
@@ -43,8 +42,8 @@ class ScriptController
 
             $puzzleConfigUseStatement = "use {$namespace}PuzzleConfig;";
             $puzzleConfigLoadFiles =
-                '$puzzleConfigs = PuzzleConfig::getConfigPaths("silktide/syringe");
-$builder->addConfigFiles($puzzleConfigs);';
+                '$puzzleConfigs = PuzzleConfig::getConfigPaths("silktide/syringe");' . "\n" .
+                '$builder->addConfigFiles($puzzleConfigs);';
         }
 
         $templates = [
@@ -71,17 +70,30 @@ $builder->addConfigFiles($puzzleConfigs);';
                 ],
                 $appDir . "/app/bootstrap.php"
             ],
-            "console" => [
-                $templateDir . "console.php.temp",
-                [],
-                $appDir . "/console.php"
-            ],
+
             "index" => [
                 $templateDir . "index.php.temp",
                 [],
                 $appDir . "/index.php"
             ]
         ];
+
+        // see if the symfony console is installed
+        $repo = $composer->getRepositoryManager()->getLocalRepository();
+        // loop through the packages and check the package name
+        $packages = $repo->getPackages();
+        foreach ($packages as $package) {
+            /** @var PackageInterface $package */
+            if ($package->getName() == "symfony/console") {
+                // add the console to the template list
+                $templates["console"] = [
+                    $templateDir . "console.php.temp",
+                    [],
+                    $appDir . "/console.php"
+                ];
+            }
+        }
+
 
         foreach ($templates as $template) {
             static::processTemplate($template[0], $template[1], $template[2]);
@@ -90,9 +102,15 @@ $builder->addConfigFiles($puzzleConfigs);';
 
     protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "")
     {
+        if (file_exists($outputFilePath)) {
+            // if the output file exists, DO NOT overwrite it
+            return;
+        }
+
         if (!file_exists($templateFilePath)) {
             throw new InstallationException("The template file '$templateFilePath' does not exist");
         }
+
         $contents = file_get_contents($templateFilePath);
 
         foreach ($replacements as $search => $replacement) {
