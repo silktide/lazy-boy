@@ -35,20 +35,20 @@ class FrontController
     /**
      * @var ServiceControllerServiceProvider
      */
-    protected $serviceProvider;
+    protected $controllerProvider;
 
     /**
      * @param ContainerBuilder $builder
      * @param string $configDir
      * @param string $applicationClass
-     * @param ServiceControllerServiceProvider $serviceProvider
+     * @param ServiceControllerServiceProvider $controllerProvider
      */
-    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, ServiceControllerServiceProvider $serviceProvider)
+    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, ServiceControllerServiceProvider $controllerProvider)
     {
         $this->builder = $builder;
         $this->configDir = $configDir;
         $this->setApplicationClass($applicationClass);
-        $this->serviceProvider = $serviceProvider;
+        $this->controllerProvider = $controllerProvider;
     }
 
     protected function setApplicationClass($applicationClass) {
@@ -69,7 +69,7 @@ class FrontController
         };
 
         // register service controller provider
-        $application->register($this->serviceProvider);
+        $application->register($this->controllerProvider);
 
         // load routes
         /** @var RouteLoader $routeLoader */
