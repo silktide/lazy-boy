@@ -12,16 +12,17 @@
   "require": {
     "php": ">=5.3.0",
     "silex/silex": "dev-master",
-    "silktide/syringe": "0.1.*",
-    "symfony/console": "2.6.*"
-
+    "silktide/syringe": "0.1.*"
   },
   "require-dev": {
     "composer/composer": "1.0.*@dev",
     "phpunit/phpunit": "4.*",
     "mockery/mockery": "0.9.*",
     "mikey179/vfsStream": "1.4.*"
-
+  },
+  "suggest": {
+    "symfony/console": "Run CLI commands",
+    "downsider/puzzle-di": "Allow installed modules to set up dependency injection for their components"
   },
   "autoload": {
     "psr-4": {
