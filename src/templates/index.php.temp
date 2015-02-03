@@ -3,6 +3,7 @@ include_once("app/bootstrap.php");
 
 use Silktide\LazyBoy\Controller\FrontController;
 use Silex\Provider\ServiceControllerServiceProvider;
+use Silktide\LazyBoy\Provider\CorsServiceProvider;
 
 /** @var Silktide\Syringe\ContainerBuilder $builder */
 
@@ -12,6 +13,9 @@ $frontController = new FrontController(
     $builder,
     $configDir,
     "Silex\\Application",
-    new ServiceControllerServiceProvider()
+    [
+        new ServiceControllerServiceProvider(),
+        new CorsServiceProvider()
+    ]
 );
 $frontController->runApplication();
