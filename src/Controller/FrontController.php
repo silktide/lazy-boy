@@ -4,10 +4,10 @@
  */
 namespace Silktide\LazyBoy\Controller;
 
+use Pimple\ServiceProviderInterface;
 use Silktide\Syringe\ContainerBuilder;
 use Silex\Application;
 use Silktide\LazyBoy\Config\RouteLoader;
-use Silex\Provider\ServiceControllerServiceProvider;
 
 /**
  * FrontController - loads routes, builds and runs the application
@@ -33,22 +33,22 @@ class FrontController
     protected $applicationClass;
 
     /**
-     * @var ServiceControllerServiceProvider
+     * @var array
      */
-    protected $controllerProvider;
+    protected $serviceProviders;
 
     /**
      * @param ContainerBuilder $builder
      * @param string $configDir
      * @param string $applicationClass
-     * @param ServiceControllerServiceProvider $controllerProvider
+     * @param array $serviceProviders
      */
-    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, ServiceControllerServiceProvider $controllerProvider)
+    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, array $serviceProviders = [])
     {
         $this->builder = $builder;
         $this->configDir = $configDir;
         $this->setApplicationClass($applicationClass);
-        $this->controllerProvider = $controllerProvider;
+        $this->setProviders($serviceProviders);
     }
 
     protected function setApplicationClass($applicationClass) {
@@ -56,6 +56,16 @@ class FrontController
             throw new \InvalidArgumentException(sprintf("The class '%s' is not a subclass of '%s'", $applicationClass, self::DEFAULT_APPLICATION_CLASS));
         }
         $this->applicationClass = $applicationClass;
+    }
+
+    protected function setProviders(array $providers)
+    {
+        $this->serviceProviders = [];
+        foreach ($providers as $provider) {
+            if ($provider instanceof ServiceProviderInterface) {
+                $this->serviceProviders[] = $provider;
+            }
+        }
     }
 
     public function runApplication()
@@ -69,7 +79,9 @@ class FrontController
         };
 
         // register service controller provider
-        $application->register($this->controllerProvider);
+        foreach ($this->serviceProviders as $provider) {
+            $application->register($provider);
+        }
 
         // load routes
         /** @var RouteLoader $routeLoader */
