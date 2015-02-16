@@ -97,6 +97,7 @@ class ScriptController
                     [],
                     $appDir . "/app/console.php"
                 ];
+                break;
             }
         }
 
