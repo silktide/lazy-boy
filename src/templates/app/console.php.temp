@@ -3,7 +3,7 @@
  * Silktide Nibbler. Copyright 2013-2014 Silktide Ltd. All Rights Reserved.
  */
 
-include_once("app/bootstrap.php");
+include_once("bootstrap.php");
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;

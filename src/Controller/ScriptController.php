@@ -20,7 +20,7 @@ class ScriptController
         $composer = $event->getComposer();
 
         // template dir
-        $templateDir = realpath(__DIR__ . "/../templates") . "/";
+        $templateDir = realpath(__DIR__ . "/../templates");
         // get app dir
         $appDir = realpath($composer->getConfig()->get("vendor-dir") . "/../");
 
@@ -49,22 +49,22 @@ class ScriptController
 
         $templates = [
             "app" => [
-                $templateDir . "app/config/app.json.temp",
+                $templateDir . "/app/config/app.json.temp",
                 ["appDir" => $appDir],
                 $appDir . "/app/config/app.json"
             ],
             "routes" => [
-                $templateDir . "app/config/routes.json.temp",
+                $templateDir . "/app/config/routes.json.temp",
                 [],
                 $appDir . "/app/config/routes.json"
             ],
             "services" => [
-                $templateDir . "app/config/services.json.temp",
+                $templateDir . "/app/config/services.json.temp",
                 [],
                 $appDir . "/app/config/services.json"
             ],
             "bootstrap" => [
-                $templateDir . "app/bootstrap.php.temp",
+                $templateDir . "/app/bootstrap.php.temp",
                 [
                     "puzzleConfigUseStatement" => $puzzleConfigUseStatement,
                     "puzzleConfigLoadFiles" => $puzzleConfigLoadFiles
@@ -73,9 +73,14 @@ class ScriptController
             ],
 
             "index" => [
-                $templateDir . "index.php.temp",
+                $templateDir . "/web/index.php.temp",
                 [],
-                $appDir . "/index.php"
+                $appDir . "/web/index.php"
+            ],
+            "htaccess" => [
+                $templateDir . "/web/.htaccess.temp",
+                [],
+                $appDir . "/web/.htaccess"
             ]
         ];
 
@@ -88,9 +93,9 @@ class ScriptController
             if ($package->getName() == "symfony/console") {
                 // add the console to the template list
                 $templates["console"] = [
-                    $templateDir . "console.php.temp",
+                    $templateDir . "/app/console.php.temp",
                     [],
-                    $appDir . "/console.php"
+                    $appDir . "/app/console.php"
                 ];
             }
         }
