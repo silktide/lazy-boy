@@ -107,7 +107,7 @@ class ScriptController
         }
     }
 
-    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePaths = [], IOInterface $output)
+    protected static function processTemplate($templateFilePath, array $replacements = [], array $outputFilePaths = [], IOInterface $output)
     {
         foreach ($outputFilePaths as $file) {
             if (file_exists($file)) {
