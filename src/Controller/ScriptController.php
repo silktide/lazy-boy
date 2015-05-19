@@ -51,17 +51,20 @@ class ScriptController
             "app" => [
                 $templateDir . "/app/config/app.json.temp",
                 ["appDir" => $appDir],
-                $appDir . "/app/config/app.json"
+                $appDir . "/app/config/app.json",
+                $appDir . "/app/config/app.yaml"
             ],
             "routes" => [
                 $templateDir . "/app/config/routes.json.temp",
                 [],
-                $appDir . "/app/config/routes.json"
+                $appDir . "/app/config/routes.json",
+                $appDir . "/app/config/routes.yaml"
             ],
             "services" => [
                 $templateDir . "/app/config/services.json.temp",
                 [],
-                $appDir . "/app/config/services.json"
+                $appDir . "/app/config/services.json",
+                $appDir . "/app/config/services.yaml"
             ],
             "bootstrap" => [
                 $templateDir . "/app/bootstrap.php.temp",
@@ -103,13 +106,13 @@ class ScriptController
 
         $output = $event->getIO();
         foreach ($templates as $template) {
-            static::processTemplate($template[0], $template[1], $template[2], $output);
+            static::processTemplate($template[0], $template[1], $template[2], (isset($template[3]) ? $template[3] : null), $output);
         }
     }
 
-    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "", IOInterface $output)
+    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "", $alternativeFile = null, IOInterface $output)
     {
-        if (file_exists($outputFilePath)) {
+        if (file_exists($outputFilePath) || isset($alternativeFile) && file_exists($alternativeFile)) {
             // if the output file exists, DO NOT overwrite it
             return;
         }
