@@ -40,7 +40,7 @@ class RouteLoader
      * @param Application $application
      * @param array $loaders
      */
-    public function __construct(Application $application, $loaders=[])
+    public function __construct(Application $application, array $loaders=[])
     {
         $this->application = $application;
 
