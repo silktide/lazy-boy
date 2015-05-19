@@ -38,6 +38,11 @@ class FrontController
     protected $serviceProviders;
 
     /**
+     * @var string
+     */
+    protected $routeFilename = "routes.json";
+
+    /**
      * @param ContainerBuilder $builder
      * @param string $configDir
      * @param string $applicationClass
@@ -49,6 +54,14 @@ class FrontController
         $this->configDir = $configDir;
         $this->setApplicationClass($applicationClass);
         $this->setProviders($serviceProviders);
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function setRouteFilename($filename)
+    {
+        $this->routeFilename = $filename;
     }
 
     protected function setApplicationClass($applicationClass) {
@@ -86,7 +99,7 @@ class FrontController
         // load routes
         /** @var RouteLoader $routeLoader */
         $routeLoader = $application["routeLoader"];
-        $routeLoader->parseRoutes($this->configDir . "/routes.json");
+        $routeLoader->parseRoutes($this->configDir . "/" . $this->routeFilename);
 
         // run the app
         $application->run();

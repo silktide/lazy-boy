@@ -10,6 +10,8 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use Silktide\LazyBoy\Config\RouteLoader;
 use Silktide\LazyBoy\Exception\RouteException;
 use Silex\Application;
+use Silktide\Syringe\Loader\JsonLoader;
+use Silktide\Syringe\Loader\YamlLoader;
 
 /**
  *
@@ -61,6 +63,8 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
 
     public function testRouteFileLoading() {
         $loader = new RouteLoader($this->app);
+        $loader->addLoader(new JsonLoader());
+        $loader->addLoader(new YamlLoader());
 
         try {
             $loader->parseRoutes(123);
@@ -88,22 +92,42 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
 
         try {
             $loader->parseRoutes($routesFile);
-            $this->fail("Should not be able to parse routes from a file that isn't in JSON format");
+            $this->fail("Should not be able to parse routes from an invalid JSON file");
         } catch (\Exception $e) {
             $this->assertInstanceOf("\\Silktide\\LazyBoy\\Exception\\RouteException", $e);
-            $this->assertRegExp("/could not be parsed as JSON/", $e->getMessage());
+            $this->assertRegExp("/Could not load the JSON file/", $e->getMessage());
             unset($e);
         }
 
+        // Test that we can correctly parse JSON
         $url = "url";
         $action = "action";
-
         $this->app->shouldReceive("get")->with($url, $action)->once();
-
         $content = json_encode(["routes" => ["route" => ["url" => $url, "action" => $action]]]);
         $file->setContent($content);
         $loader->parseRoutes($routesFile);
 
+
+        $routesFile = vfsStream::url("test/test.yaml");
+        $file = vfsStream::newFile("test.yaml", 0777);
+        $file->setContent("- \"Invalid Yaml");;
+        vfsStreamWrapper::getRoot()->addChild($file);
+
+        try{
+            $loader->parseRoutes($routesFile);
+            $this->fail("Should not be able to parse routes from an invalid Yaml file");
+        } catch (\Exception $e) {
+            $this->assertInstanceOf("\\Silktide\\LazyBoy\\Exception\\RouteException", $e);
+            $this->assertRegExp("/Could not load the YAML file/", $e->getMessage());
+        }
+
+        // Test that we can correctly parse YAML
+        $url = "url";
+        $action = "action";
+        $this->app->shouldReceive("get")->with($url, $action)->once();
+        $content ="routes:\n  route:\n    url: ".$url."\n    action: ".$action;
+        $file->setContent($content);
+        $loader->parseRoutes($routesFile);
     }
 
     public function routeProvider()

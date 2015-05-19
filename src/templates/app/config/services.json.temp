@@ -6,8 +6,15 @@
     "routeLoader": {
       "class": "Silktide\\LazyBoy\\Config\\RouteLoader",
       "arguments": [
-        "@app"
+        "@app",
+        ["@yaml.loader", "@json.loader"]
       ]
+    },
+    "yaml.loader": {
+      "class": "Silktide\\Syringe\\Loader\\YamlLoader"
+    },
+    "json.loader": {
+      "class": "Silktide\\Syringe\\Loader\\JsonLoader"
     }
   }
 }
