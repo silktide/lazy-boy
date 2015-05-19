@@ -6,6 +6,8 @@ namespace Silktide\LazyBoy\Config;
 
 use Silex\Application;
 use Silktide\LazyBoy\Exception\RouteException;
+use Silktide\Syringe\Exception\LoaderException;
+use Silktide\Syringe\Loader\LoaderInterface;
 
 /**
  * Load routes into the application
@@ -30,11 +32,27 @@ class RouteLoader
     protected $application;
 
     /**
+     * @var LoaderInterface[]
+     */
+    protected $loaders = [];
+
+    /**
      * @param Application $application
      */
-    public function __construct(Application $application)
+    public function __construct(Application $application, $loaders=[])
     {
         $this->application = $application;
+
+        foreach ($loaders as $loader) {
+            if ($loader instanceof LoaderInterface) {
+                $this->addLoader($loader);
+            }
+        }
+    }
+
+    public function addLoader(LoaderInterface $loader)
+    {
+        $this->loaders[] = $loader;
     }
 
     /**
@@ -53,12 +71,13 @@ class RouteLoader
             if (!file_exists($routes)) {
                 throw new RouteException("Cannot load routes, the file '$routes' does not exist");
             }
-            // get the data (should be in JSON format)
-            $data = json_decode(file_get_contents($routes), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RouteException("The file '$routes' could not be parsed as JSON data: " . json_last_error_msg());
+
+            try{
+                $loader = $this->selectLoader($routes);
+                $routes = $loader->loadFile($routes);
+            } catch(LoaderException $e) {
+                throw new RouteException($e->getMessage());
             }
-            $routes = $data;
         }
 
         // validation
@@ -88,4 +107,20 @@ class RouteLoader
         }
     }
 
+
+    /**
+     * @param $file
+     * @return LoaderInterface
+     * @throws \Exception||LoaderException
+     */
+    protected function selectLoader($file)
+    {
+        foreach ($this->loaders as $loader) {
+            /** @var LoaderInterface $loader */
+            if ($loader->supports($file)) {
+                return $loader;
+            }
+        }
+        throw new LoaderException(sprintf("The file '%s' is not supported by any of the available loaders", $file));
+    }
 } 
