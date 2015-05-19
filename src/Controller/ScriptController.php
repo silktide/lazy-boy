@@ -110,6 +110,7 @@ class ScriptController
     protected static function processTemplate($templateFilePath, array $replacements = [], array $outputFilePaths = [], IOInterface $output)
     {
         foreach ($outputFilePaths as $file) {
+            // If any of the output file exists, DO NOT overwrite it
             if (file_exists($file)) {
                 return;
             }
