@@ -38,6 +38,7 @@ class RouteLoader
 
     /**
      * @param Application $application
+     * @param array $loaders
      */
     public function __construct(Application $application, $loaders=[])
     {
@@ -50,6 +51,9 @@ class RouteLoader
         }
     }
 
+    /**
+     * @param LoaderInterface $loader
+     */
     public function addLoader(LoaderInterface $loader)
     {
         $this->loaders[] = $loader;
