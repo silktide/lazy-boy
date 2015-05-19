@@ -51,20 +51,17 @@ class ScriptController
             "app" => [
                 $templateDir . "/app/config/app.json.temp",
                 ["appDir" => $appDir],
-                $appDir . "/app/config/app.json",
-                $appDir . "/app/config/app.yaml"
+                [$appDir . "/app/config/app.json", $appDir . "/app/config/app.yaml"]
             ],
             "routes" => [
                 $templateDir . "/app/config/routes.json.temp",
                 [],
-                $appDir . "/app/config/routes.json",
-                $appDir . "/app/config/routes.yaml"
+                [$appDir . "/app/config/routes.json", $appDir . "/app/config/routes.yaml"]
             ],
             "services" => [
                 $templateDir . "/app/config/services.json.temp",
                 [],
-                $appDir . "/app/config/services.json",
-                $appDir . "/app/config/services.yaml"
+                [$appDir . "/app/config/services.json", $appDir . "/app/config/services.yaml"]
             ],
             "bootstrap" => [
                 $templateDir . "/app/bootstrap.php.temp",
@@ -72,18 +69,18 @@ class ScriptController
                     "puzzleConfigUseStatement" => $puzzleConfigUseStatement,
                     "puzzleConfigLoadFiles" => $puzzleConfigLoadFiles
                 ],
-                $appDir . "/app/bootstrap.php"
+                [$appDir . "/app/bootstrap.php"]
             ],
 
             "index" => [
                 $templateDir . "/web/index.php.temp",
                 [],
-                $appDir . "/web/index.php"
+                [$appDir . "/web/index.php"]
             ],
             "htaccess" => [
                 $templateDir . "/web/.htaccess.temp",
                 [],
-                $appDir . "/web/.htaccess"
+                [$appDir . "/web/.htaccess"]
             ]
         ];
 
@@ -98,7 +95,7 @@ class ScriptController
                 $templates["console"] = [
                     $templateDir . "/app/console.php.temp",
                     [],
-                    $appDir . "/app/console.php"
+                    [$appDir . "/app/console.php"]
                 ];
                 break;
             }
@@ -106,16 +103,19 @@ class ScriptController
 
         $output = $event->getIO();
         foreach ($templates as $template) {
-            static::processTemplate($template[0], $template[1], $template[2], (isset($template[3]) ? $template[3] : null), $output);
+            static::processTemplate($template[0], $template[1], $template[2], $output);
         }
     }
 
-    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePath = "", $alternativeFile = null, IOInterface $output)
+    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePaths = [], IOInterface $output)
     {
-        if (file_exists($outputFilePath) || isset($alternativeFile) && file_exists($alternativeFile)) {
-            // if the output file exists, DO NOT overwrite it
-            return;
+        foreach ($outputFilePaths as $file) {
+            if (file_exists($file)) {
+                return;
+            }
         }
+
+        $outputFilePath = $outputFilePaths[0];
 
         if (!file_exists($templateFilePath)) {
             throw new InstallationException("The template file '$templateFilePath' does not exist");
