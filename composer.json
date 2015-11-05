@@ -4,7 +4,7 @@
   "license": "MIT",
   "homepage": "https://github.com/silktide/lazy-boy",
   "require": {
-    "php": ">=5.3.0",
+    "php": ">=5.4.0",
     "silex/silex": "dev-master",
     "silktide/syringe": "^1.0"
   },
