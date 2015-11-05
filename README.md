@@ -40,7 +40,7 @@ a file which already exists, so committing those changes to a VCS is safe. Havin
 mean they are generated the first time you run `composer update` or `composer install` on a freshly cloned repository.
 You can also regenerate the files by deleting them and running the install command.
 
-All that is left to do is create a vhost or otherwise point requests to the `index.php` file in the `web` directory.
+All that is left to do is create a vhost or otherwise point requests to `web/index.php`.
  
 ## Contributing
 
