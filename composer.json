@@ -1,12 +1,14 @@
 {
   "name": "silktide/lazy-boy",
   "description": "A skeleton REST API application, using Silex and Syringe with support for Puzzle-DI",
+  "type": "composer-plugin",
   "license": "MIT",
   "homepage": "https://github.com/silktide/lazy-boy",
   "require": {
     "php": ">=5.4.0",
     "silex/silex": "dev-master",
-    "silktide/syringe": "^1.0"
+    "silktide/syringe": "^1.0",
+    "composer-plugin-api": "^1.0"
   },
   "require-dev": {
     "composer/composer": "1.0.*@dev",
@@ -23,6 +25,9 @@
       "Silktide\\LazyBoy\\": "src",
       "Silktide\\LazyBoy\\Test\\": "test"
     }
+  },
+  "extra": {
+    "class": "Silktide\\LazyBoy\\Controller\\ScriptController"
   },
   "scripts": {
     "install-lazy-boy": [

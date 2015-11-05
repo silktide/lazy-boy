@@ -4,20 +4,42 @@
  */
 namespace Silktide\LazyBoy\Controller;
 
+use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
+use Composer\Script\ScriptEvents;
 use Silktide\LazyBoy\Exception\InstallationException;
 use Composer\Package\PackageInterface;
 
 /**
  *
  */
-class ScriptController 
+class ScriptController implements PluginInterface, EventSubscriberInterface
 {
+    public static function getSubscribedEvents()
+    {
+        return [
+            ScriptEvents::POST_INSTALL_CMD => ['install'],
+            ScriptEvents::POST_UPDATE_CMD => ['install'],
+        ];
+    }
+
+    public function activate(Composer $composer, IOInterface $io)
+    {
+        // Move along, nothing to see here
+    }
+
 
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
+        $package = $composer->getPackage();
+        $extra = $package->getExtra();
+        if (!empty($extra["lazy-boy"]["prevent-install"])) {
+            return;
+        }
 
         // template dir
         $templateDir = realpath(__DIR__ . "/../templates");
@@ -27,7 +49,6 @@ class ScriptController
         // check for puzzle-di
         $puzzleConfigUseStatement = "";
         $puzzleConfigLoadFiles = "";
-        $package = $composer->getPackage();
         $dependencies = $package->getRequires();
         if (!empty($dependencies["downsider/puzzle-di"])) {
             // get package namespace
