@@ -1,6 +1,8 @@
 <?php
 
-include_once(__DIR__ . "/../vendor/autoload.php");
+$appDir = dirname(__DIR__);
+
+include_once($appDir . "/vendor/autoload.php");
 
 use Silktide\Syringe\ReferenceResolver;
 use Silktide\Syringe\ContainerBuilder;
@@ -15,7 +17,8 @@ $loaders = [
 ];
 
 $configPaths = [
-    __DIR__ . "/config"
+    $appDir . "/app/config",
+    $appDir
 ];
 
 $builder = new ContainerBuilder($resolver, $configPaths);
@@ -23,7 +26,7 @@ $builder = new ContainerBuilder($resolver, $configPaths);
 foreach ($loaders as $loader) {
     $builder->addLoader($loader);
 }
+$builder->setApplicationRootDirectory($appDir);
 
 {{puzzleConfigLoadFiles}}
-$builder->addConfigFile("app.json");
 $builder->addConfigFile("services.json");
