@@ -9,7 +9,7 @@ It is packaged with a route loader and uses [Syringe], which allows you to defin
 configuration files, rather than PHP
 
 If you have the [Symfony console] installed, it will also create a console script and automatically load any commands it
-finds in the service container (any service name which ends with ".command" and is an instance of the Symaony Command 
+finds in the service container (any service name which ends with ".command" and is an instance of the Symfony Command 
 class). You can also use [Puzzle-DI] to load service configuration from modules.
 
 ## Installation
@@ -37,7 +37,8 @@ Once installed, add the following scripts to your composer.json file ...
     
 This will generate several files from Lazy Boy templates. You are free to make modifications; Lazy Boy will not overwrite 
 a file which already exists, so committing those changes to a VCS is safe. Having your VCS ignore the files will
-mean the files are generated any time you run `composer update` or `composer install`
+mean they are generated the first time you run `composer update` or `composer install` on a freshly cloned repository.
+You can also regenerate the files by deleting them and running the install command.
 
 All that is left to do is create a vhost or otherwise point requests to the `index.php` file in the `web` directory.
  
