@@ -29,5 +29,10 @@
       "Silktide\\LazyBoy\\": "src",
       "Silktide\\LazyBoy\\Test\\": "test"
     }
+  },
+  "scripts": {
+    "install-lazy-boy": [
+      "Silktide\\LazyBoy\\Controller\\ScriptController::install"
+    ]
   }
 }
