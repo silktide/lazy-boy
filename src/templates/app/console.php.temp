@@ -1,8 +1,4 @@
 <?php
-/**
- * Silktide Nibbler. Copyright 2013-2014 Silktide Ltd. All Rights Reserved.
- */
-
 include_once("bootstrap.php");
 
 use Symfony\Component\Console\Application;
