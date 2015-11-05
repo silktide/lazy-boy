@@ -22,10 +22,10 @@ Once installed, add the following scripts to your composer.json file ...
     "scripts": {
       "post-update-cmd": [
         "Silktide\\LazyBoy\\Controller\\ScriptController::install"
-      ]
+      ],
       "post-install-cmd": [
         "Silktide\\LazyBoy\\Controller\\ScriptController::install"
-      ]
+      ],
       "install-lazy-boy": [
         "Silktide\\LazyBoy\\Controller\\ScriptController::install"
       ]
