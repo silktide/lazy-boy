@@ -17,28 +17,19 @@ install using composer:
 
     composer require silktide/lazy-boy:^1.0
 
-Once installed, add the following scripts to your composer.json file ...
- 
-    "scripts": {
-      "post-update-cmd": [
-        "Silktide\\LazyBoy\\Controller\\ScriptController::install"
-      ],
-      "post-install-cmd": [
-        "Silktide\\LazyBoy\\Controller\\ScriptController::install"
-      ],
-      "install-lazy-boy": [
-        "Silktide\\LazyBoy\\Controller\\ScriptController::install"
-      ]
+Lazy Boy will automatically generate several files from templates, whenever `composer update` or `composer install` is run.
+You are free to make modifications; Lazy Boy will not overwrite a file which already exists, so committing those changes 
+to a VCS is safe. Having your VCS ignore the files will mean they are generated when you install vendors on a freshly 
+cloned repository.
+
+If you want to disable automatic file generation, so you can use the FrontController or RouteLoader perhaps, add the 
+following to your composer file:
+
+    "extra": {
+      "lazy-boy": {
+        "prevent-install": true
+      }
     }
-
-... and run this command
-
-    composer install-lazy-boy
-    
-This will generate several files from Lazy Boy templates. You are free to make modifications; Lazy Boy will not overwrite 
-a file which already exists, so committing those changes to a VCS is safe. Having your VCS ignore the files will
-mean they are generated the first time you run `composer update` or `composer install` on a freshly cloned repository.
-You can also regenerate the files by deleting them and running the install command.
 
 All that is left to do is create a vhost or otherwise point requests to `web/index.php`.
  
