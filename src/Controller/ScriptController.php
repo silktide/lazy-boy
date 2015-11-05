@@ -48,11 +48,6 @@ class ScriptController
         }
 
         $templates = [
-            "app" => [
-                $templateDir . "/app/config/app.json.temp",
-                ["appDir" => $appDir],
-                [$appDir . "/app/config/app.json", $appDir . "/app/config/app.yaml"]
-            ],
             "routes" => [
                 $templateDir . "/app/config/routes.json.temp",
                 [],
