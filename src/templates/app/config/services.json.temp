@@ -1,13 +1,22 @@
 {
   "parameters": {
-
+    "securityContainer.defaultSecurity": {
+      "public": true
+    }
   },
   "services": {
     "routeLoader": {
       "class": "Silktide\\LazyBoy\\Config\\RouteLoader",
       "arguments": [
         "@app",
+        "@securityContainer",
         ["@yaml.loader", "@json.loader"]
+      ]
+    },
+    "securityContainer": {
+      "class": "Silktide\\LazyBoy\\Security\\SecurityContainer",
+      "arguments": [
+        "%securityContainer.defaultSecurity%"
       ]
     },
     "yaml.loader": {
