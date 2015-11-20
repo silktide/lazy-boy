@@ -6,6 +6,7 @@ namespace Silktide\LazyBoy\Config;
 
 use Silex\Application;
 use Silktide\LazyBoy\Exception\RouteException;
+use Silktide\LazyBoy\Security\SecurityContainer;
 use Silktide\Syringe\Exception\LoaderException;
 use Silktide\Syringe\Loader\LoaderInterface;
 
@@ -37,12 +38,19 @@ class RouteLoader
     protected $loaders = [];
 
     /**
+     * @var SecurityContainer
+     */
+    protected $securityContainer = [];
+
+    /**
      * @param Application $application
+     * @param SecurityContainer $securityContainer
      * @param array $loaders
      */
-    public function __construct(Application $application, array $loaders=[])
+    public function __construct(Application $application, SecurityContainer $securityContainer, array $loaders=[])
     {
         $this->application = $application;
+        $this->securityContainer = $securityContainer;
 
         foreach ($loaders as $loader) {
             if ($loader instanceof LoaderInterface) {
@@ -107,7 +115,18 @@ class RouteLoader
                 }
             }
             // add the route
-            $this->application->{$config["method"]}($config["url"], $config["action"]);
+            $this->application->{$config["method"]}($config["url"], $config["action"])->bind($routeName);
+
+            // apply security if required
+            $security = null;
+            if (isset($config["public"])) {
+                $security = ["public" => $config["public"]];
+            } elseif (!empty($config["security"])) {
+                $security = $config["security"];
+            }
+            if ($security !== null) {
+                $this->securityContainer->setSecurityForRoute($routeName, $security);
+            }
         }
     }
 
