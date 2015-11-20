@@ -40,7 +40,7 @@ class FrontController
     /**
      * @var string
      */
-    protected $routeFilename = "routes.json";
+    protected $routeFilename = "routes.yml";
 
     /**
      * @param ContainerBuilder $builder

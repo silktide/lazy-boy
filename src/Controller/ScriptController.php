@@ -70,14 +70,14 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
         $templates = [
             "routes" => [
-                $templateDir . "/app/config/routes.json.temp",
+                $templateDir . "/app/config/routes.yml.temp",
                 [],
-                [$appDir . "/app/config/routes.json", $appDir . "/app/config/routes.yaml"]
+                [$appDir . "/app/config/routes.yaml", $appDir . "/app/config/routes.json"]
             ],
             "services" => [
-                $templateDir . "/app/config/services.json.temp",
+                $templateDir . "/app/config/services.yml.temp",
                 [],
-                [$appDir . "/app/config/services.json", $appDir . "/app/config/services.yaml"]
+                [$appDir . "/app/config/services.yaml", $appDir . "/app/config/services.json"]
             ],
             "bootstrap" => [
                 $templateDir . "/app/bootstrap.php.temp",
