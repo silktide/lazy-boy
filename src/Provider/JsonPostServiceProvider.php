@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Converts a request body to an array if it is in JSON format
+ * Converts a request body to parameters if it is in JSON format
  */
 class JsonPostServiceProvider implements ServiceProviderInterface
 {
@@ -25,7 +25,7 @@ class JsonPostServiceProvider implements ServiceProviderInterface
                         return new Response('{"error": "The request body was not in JSON format"}');
                     }
                     // modify the request with the decoded data
-                    $request->request->replace(is_array($data) ? $data : []);
+                    $request->request->add(is_array($data) ? $data : []);
                 }
             }, Application::EARLY_EVENT + 1); // set priority to be almost always first to run
         }
