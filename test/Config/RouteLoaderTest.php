@@ -12,6 +12,7 @@ use Silktide\LazyBoy\Exception\RouteException;
 use Silex\Application;
 use Silktide\Syringe\Loader\JsonLoader;
 use Silktide\Syringe\Loader\YamlLoader;
+use Silktide\LazyBoy\Security\SecurityContainer;
 
 /**
  *
@@ -23,9 +24,19 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
      */
     protected $app;
 
+    /**
+     * @var \Mockery\Mock|SecurityContainer
+     */
+    protected $securityContainer;
+
+    /** @var \Mockery\Mock $controllerCollection */
+    protected $controllerCollection;
+
     public function setUp()
     {
+        $this->controllerCollection = \Mockery::mock("Silex\\ContainerCollection");
         $this->app = \Mockery::mock("Silex\\Application");
+        $this->securityContainer = \Mockery::mock("Silktide\\LazyBoy\\Security\\SecurityContainer");
 
         vfsStreamWrapper::register();
     }
@@ -40,10 +51,12 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
      */
     public function testRouteLoading(array $routes, $exceptionPattern, array $expectedCalls = []) {
 
-        $loader = new RouteLoader($this->app);
+        $this->controllerCollection->shouldReceive("bind");
+
+        $loader = new RouteLoader($this->app, $this->securityContainer);
 
         foreach ($expectedCalls as $call) {
-            $this->app->shouldReceive($call["method"])->with($call["url"], $call["action"])->once();
+            $this->app->shouldReceive($call["method"])->with($call["url"], $call["action"])->once()->andReturn($this->controllerCollection);
         }
 
         try {
@@ -62,7 +75,19 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRouteFileLoading() {
-        $loader = new RouteLoader($this->app);
+
+        $counts = [];
+        $this->controllerCollection->shouldReceive("bind")->andReturnUsing(function($routeName) use (&$counts) {
+            if (empty($counts[$routeName])) {
+                $counts[$routeName] = 0;
+            }
+            ++$counts[$routeName];
+        });
+
+        $this->app->shouldReceive("get")->andReturn($this->controllerCollection);
+        $this->app->shouldReceive("post")->andReturn($this->controllerCollection);
+
+        $loader = new RouteLoader($this->app, $this->securityContainer);
         $loader->addLoader(new JsonLoader());
         $loader->addLoader(new YamlLoader());
 
@@ -102,8 +127,8 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
         // Test that we can correctly parse JSON
         $url = "url";
         $action = "action";
-        $this->app->shouldReceive("get")->with($url, $action)->once();
-        $content = json_encode(["routes" => ["route" => ["url" => $url, "action" => $action]]]);
+        $jsonRoute = "jsonRoute";
+        $content = json_encode(["routes" => [$jsonRoute => ["url" => $url, "action" => $action]]]);
         $file->setContent($content);
         $loader->parseRoutes($routesFile);
 
@@ -124,10 +149,15 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
         // Test that we can correctly parse YAML
         $url = "url";
         $action = "action";
-        $this->app->shouldReceive("get")->with($url, $action)->once();
-        $content ="routes:\n  route:\n    url: ".$url."\n    action: ".$action;
+        $yamlRoute = "yamlRoute";
+        $content ="routes:\n  $yamlRoute:\n    url: ".$url."\n    action: ".$action;
         $file->setContent($content);
         $loader->parseRoutes($routesFile);
+
+        $this->assertArrayHasKey($jsonRoute, $counts, "The route in the JSON file was not parsed");
+        $this->assertEquals(1, $counts[$jsonRoute], "The route in the JSON file was not parsed exactly once");
+        $this->assertArrayHasKey($yamlRoute, $counts, "The route in the YAML file was not parsed");
+        $this->assertEquals(1, $counts[$yamlRoute], "The route in the YAML file was not parsed exactly once");
     }
 
     public function routeProvider()
