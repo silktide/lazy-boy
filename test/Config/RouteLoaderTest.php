@@ -240,6 +240,116 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
         ];
     }
 
+    public function testImportingRoutes()
+    {
+        $overrideUrl = "override.com";
+
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory("test", 0777));
+
+        $routesFile = vfsStream::url("test/test.json");
+        $file = vfsStream::newFile("test.json", 0777);
+        $content = [
+            "imports" => [
+                "import1.json",
+                "imp/ort2.json"
+            ],
+            "routes" => [
+                "rootFileRoute" => [
+                    "url" => "url",
+                    "action" => "blah"
+                ],
+                "overrideRoute" => [
+                    "url" => $overrideUrl,
+                    "method" => "post",
+                    "action" => "blah"
+                ]
+            ]
+        ];
+        $file->setContent(json_encode($content));
+        vfsStreamWrapper::getRoot()->addChild($file);
+
+        $import1 = vfsStream::newFile("import1.json", 0777);
+        $import1Content = [
+            "routes" => [
+                "import1Route" => [
+                    "url" => "url",
+                    "action" => "action"
+                ],
+                "overrideRoute" => [
+                    "url" => "shouldn't be this",
+                    "method" => "post",
+                    "action" => "nor this"
+                ]
+            ]
+        ];
+        $import1->setContent(json_encode($import1Content));
+        vfsStreamWrapper::getRoot()->addChild($import1);
+
+        $importDir = vfsStream::newDirectory("imp", 0777);
+        $import2 = vfsStream::newFile("ort2.json", 0777);
+        $import2Content = [
+            "routes" => [
+                "import2Route" => [
+                    "url" => "url",
+                    "action" => "action"
+                ]
+            ],
+            "imports" => [
+                "import3.json"
+            ]
+        ];
+        $import2->setContent(json_encode($import2Content));
+        $importDir->addChild($import2);
+
+        $import3 = vfsStream::newFile("import3.json", 0777);
+        $import3Content = [
+            "routes" => [
+                "import3Route" => [
+                    "url" => "url",
+                    "action" => "action"
+                ]
+            ]
+        ];
+        $import3->setContent(json_encode($import3Content));
+        $importDir->addChild($import3);
+
+        vfsStreamWrapper::getRoot()->addChild($importDir);
+
+
+        // setup mocks
+        $counts = [];
+
+        $this->controllerCollection->shouldReceive("bind")->andReturnUsing(function($routeName) use (&$counts) {
+            if (empty($counts[$routeName])) {
+                $counts[$routeName] = 0;
+            }
+            ++$counts[$routeName];
+        });
+
+        $this->app->shouldReceive("get")->andReturn($this->controllerCollection);
+        // add check to make sure the overridden route uses the correct version (from the "root"-most file)
+        $this->app->shouldReceive("post")->withArgs([$overrideUrl, \Mockery::any()])->atLeast()->once()->andReturn($this->controllerCollection);
+
+        // create the loader and run the test
+        $loader = new RouteLoader($this->app, $this->securityContainer);
+        $loader->addLoader(new JsonLoader());
+
+        $loader->parseRoutes($routesFile);
+
+        $expected = [
+            "rootFileRoute" => 1,
+            "overrideRoute" => 1,
+            "import1Route" => 1,
+            "import2Route" => 1,
+            "import3Route" => 1,
+        ];
+
+        foreach ($expected as $route => $count) {
+            $this->assertArrayHasKey($route, $counts, "check the route '$route' was set at all");
+            $this->assertEquals($count, $counts[$route], "Check the route '$route' was set x$count");
+        }
+    }
+
     public function tearDown()
     {
         \Mockery::close();
