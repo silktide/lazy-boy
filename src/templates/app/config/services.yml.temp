@@ -5,7 +5,7 @@ parameters:
 
 services:
   routeLoader:
-    class: "Silktide\LazyBoy\Config\RouteLoader"
+    class: Silktide\LazyBoy\Config\RouteLoader
     arguments:
       - "@app"
       - "@securityContainer"
@@ -14,12 +14,12 @@ services:
         - "@json.loader"
 
   securityContainer:
-    class: "Silktide\LazyBoy\Security\SecurityContainer"
+    class: Silktide\LazyBoy\Security\SecurityContainer
     arguments:
       - "%securityContainer.defaultSecurity%"
 
   yaml.loader:
-    class: "Silktide\Syringe\Loader\YamlLoader"
+    class: Silktide\Syringe\Loader\YamlLoader
 
   json.loader:
-    class: "Silktide\Syringe\Loader\JsonLoader"
+    class: Silktide\Syringe\Loader\JsonLoader
