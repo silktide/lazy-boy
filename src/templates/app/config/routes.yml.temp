@@ -1,1 +1,10 @@
 routes:
+
+# Example Syntax:
+#  url: ""
+#  method:""
+#  action: "controller.service:methodName"
+#  public: true (shorthand, or...)
+#  security:
+#     public: true
+#     roles: []

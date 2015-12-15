@@ -76,20 +76,7 @@ class RouteLoader
     {
         // if we don't have a data array, see if we can load it from a file
         if (!is_array($routes)) {
-            if (!is_string($routes)) {
-                throw new \InvalidArgumentException("The \$routes argument must be an array or a filePath");
-            }
-            // check $routes is a filePath
-            if (!file_exists($routes)) {
-                throw new RouteException("Cannot load routes, the file '$routes' does not exist");
-            }
-
-            try{
-                $loader = $this->selectLoader($routes);
-                $routes = $loader->loadFile($routes);
-            } catch(LoaderException $e) {
-                throw new RouteException($e->getMessage());
-            }
+            $routes = $this->loadFile($routes);
         }
 
         // validation
@@ -146,4 +133,37 @@ class RouteLoader
         }
         throw new LoaderException(sprintf("The file '%s' is not supported by any of the available loaders", $file));
     }
+
+    protected function loadFile($routes)
+    {
+        if (!is_string($routes)) {
+            throw new \InvalidArgumentException("The \$routes argument must be an array or a filePath");
+        }
+
+        $filePath = $routes;
+        // check $routes is a filePath
+        if (!file_exists($filePath)) {
+            throw new RouteException("Cannot load routes, the file '$filePath' does not exist");
+        }
+
+        try{
+            $loader = $this->selectLoader($filePath);
+            $routes = $loader->loadFile($filePath);
+        } catch(LoaderException $e) {
+            throw new RouteException($e->getMessage());
+        }
+        // load any route files we've been asked to import
+        if (!empty($routes["imports"])) {
+            // the import file will be relative to this file, so get the file's directory
+            $rootPath = substr($filePath, 0, strrpos($filePath, "/") + 1);
+            foreach ($routes["imports"] as $import) {
+                // load the import and merge with the route file
+                $importedRoutes = $this->loadFile($rootPath . $import);
+
+                $routes = array_replace_recursive($importedRoutes, $routes);
+            }
+        }
+        return $routes;
+    }
+
 } 

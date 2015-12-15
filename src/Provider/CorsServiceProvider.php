@@ -1,8 +1,7 @@
 <?php
-/**
- * Silktide Nibbler. Copyright 2013-2014 Silktide Ltd. All Rights Reserved.
- */
+
 namespace Silktide\LazyBoy\Provider;
+
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Application;
@@ -25,7 +24,7 @@ class CorsServiceProvider implements ServiceProviderInterface
                     $response = new Response();
                     $response->headers->set("Access-Control-Allow-Origin","*");
                     $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-                    $response->headers->set("Access-Control-Allow-Headers","Content-Type");
+                    $response->headers->set("Access-Control-Allow-Headers","Content-Type,Authorization");
                     $response->setStatusCode(200);
                     $response->send();
                     exit();
