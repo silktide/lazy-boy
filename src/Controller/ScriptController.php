@@ -41,8 +41,12 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
             return;
         }
 
+        $lazyBoyDir = $composer->getInstallationManager()->getInstallPath(
+            $composer->getRepositoryManager()->findPackage("silktide/lazy-boy", "*")
+        );
+
         // template dir
-        $templateDir = realpath(__DIR__ . "/../templates");
+        $templateDir = $lazyBoyDir ."/src/templates";
         // get app dir
         $appDir = realpath($composer->getConfig()->get("vendor-dir") . "/../");
 
