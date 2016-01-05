@@ -76,9 +76,16 @@ class FrontController
         $this->serviceProviders = [];
         foreach ($providers as $provider) {
             if ($provider instanceof ServiceProviderInterface) {
-                $this->serviceProviders[] = $provider;
+                $this->addProvider($provider);
+            } elseif (is_array($provider) && $provider[0] instanceof ServiceProviderInterface) {
+                $this->addProvider($provider[0], $provider[1]);
             }
         }
+    }
+
+    public function addProvider(ServiceProviderInterface $provider, array $values=[])
+    {
+        $this->serviceProviders[] = [$provider, $values];
     }
 
     public function runApplication()
@@ -93,7 +100,7 @@ class FrontController
 
         // register service controller provider
         foreach ($this->serviceProviders as $provider) {
-            $application->register($provider);
+            $application->register($provider[0], $provider[1]);
         }
 
         // load routes
