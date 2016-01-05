@@ -95,7 +95,7 @@ class FrontControllerTest extends \PHPUnit_Framework_TestCase {
         $this->builder->shouldReceive("createContainer")->once()->andReturn($this->application);
         $this->application->shouldReceive("offsetGet")->with("routeLoader")->once()->andReturn($this->routeLoader);
         $this->application->shouldReceive("register")->with($this->serviceProvider, [])->times(3);
-        $this->application->shouldReceive("register")->with($this->serviceProvider, ["myValue" => "value"]);
+        $this->application->shouldReceive("register")->with($this->serviceProvider, ["myValue" => "value"])->once();
 
         $controller = new FrontController($this->builder, "configDir", FrontController::DEFAULT_APPLICATION_CLASS, $providers);
         $controller->runApplication();
