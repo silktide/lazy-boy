@@ -25,14 +25,91 @@ cloned repository.
 If you want to disable automatic file generation, so you can use the FrontController or RouteLoader perhaps, add the 
 following to your composer file:
 
-    "extra": {
-      "lazy-boy": {
-        "prevent-install": true
-      }
-    }
+```json
+"extra": {
+  "lazy-boy": {
+    "prevent-install": true
+  }
+}
+```
 
 All that is left to do is create a vhost or otherwise point requests to `web/index.php`.
  
+## Routing
+
+### Routes
+
+If you are using the standard Lazy-Boy route loader, you can define your routes in configuration files, using YAML or
+JSON. Each route is defined as follows:
+
+```yaml
+routes:
+    route-name:
+        url: /sub/directory
+        action: "test_controller:doSomething"
+        method: post
+```
+
+`routes` is an associative array of routes that you want to allow access to.
+
+In this case, a HTTP request that was `POST`ed to `/sub/directory`, would access a service in the container called
+`test-controller` and call it's method `doSomething`. This route could be referenced as `route-name` when using the 
+router.
+
+For each route, the `url` and `action` parameters are required, but `method` is optional and defaults to `GET`.
+
+### Groups
+
+If you have many routes with similar URLs, such as:
+
+* /users
+* /users/{id}
+* /users/login
+* /users/logout
+
+you can use a group to wrap them with a common url prefix.
+
+```yaml
+groups:
+    users:
+        urlPrefix: /users
+        routes:
+            user-list:
+                url: /
+                action: "..."
+            get-user:
+                url: /{id}
+                action: "..."
+            user-login:
+                url: /login
+                action: "..."
+                method: post
+            user-logout:
+                url: /logout
+                action "..."
+```
+
+### Imports
+
+if you have a lot of routes, it can be convenient to separate related routes into different files. In this case, you can
+import files into a parent file by using the `imports` array:
+
+```yaml
+imports:
+    - users.yml
+    - shop/products.yml
+    - shop/checkout.yml
+
+groups:
+    group: "..."
+routes:
+    route: "..."
+```
+
+Imported files are merged into a single configuration array before routes and groups are processed. Where route naming 
+conflicts arise, the latter import will overwrite the former and the importing file will take precedence over any 
+imported routes.
+
 ## Contributing
 
 If you have improvements you would like to see, open an issue in this github project or better yet, fork the project,
