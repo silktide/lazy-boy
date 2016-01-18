@@ -1,7 +1,5 @@
 <?php
-/**
- * Silktide Nibbler. Copyright 2013-2014 Silktide Ltd. All Rights Reserved.
- */
+
 namespace Silktide\LazyBoy\Config;
 
 use Silex\Application;
@@ -69,52 +67,74 @@ class RouteLoader
 
     /**
      * @param array|string $routes - route data or filePath to route data
+     * @param string $baseUrl - used to track the base URL within a group of routes. This argument should only be required for internal recursion
      * @throws RouteException
-     * @throws \InvalidArgumentException
      */
-    public function parseRoutes($routes)
+    public function parseRoutes($routes, $baseUrl = "")
     {
         // if we don't have a data array, see if we can load it from a file
         if (!is_array($routes)) {
             $routes = $this->loadFile($routes);
         }
 
-        // validation
-        if (empty($routes["routes"])) {
-            throw new RouteException("The routes data array does not contain a 'routes' element at it's base");
-        }
-        if (!is_array($routes["routes"])) {
-            throw new RouteException("The routes data array is not in the correct format");
-        }
-
-        foreach ($routes["routes"] as $routeName => $config) {
-            // route validation
-            if (empty($config["url"]) || empty($config["action"])) {
-                throw new RouteException("The data for the '$routeName' route is missing required elements");
+        $hasProcessed = false;
+        // process groups
+        if (!empty($routes["groups"])) {
+            if (!is_array($routes["groups"])) {
+                throw new RouteException("The group data array for '$baseUrl' is not in the correct format");
             }
-            if (empty($config["method"])) {
-                $config["method"] = "get";
-            } else {
-                $config["method"] = strtolower($config["method"]);
-                // check method is allowed
-                if (!isset($this->allowedMethods[$config["method"]])) {
-                    throw new RouteException("The method '{$config["method"]}' for route '$routeName' is not allowed");
+
+            foreach ($routes["groups"] as $groupName => $config) {
+                if (empty($config["urlPrefix"])) {
+                    throw new RouteException("The group '$groupName' does not have a URL associated with it");
                 }
+                $this->parseRoutes($config, $baseUrl . $config["urlPrefix"]);
+                $hasProcessed = true;
             }
-            // add the route
-            $this->application->{$config["method"]}($config["url"], $config["action"])->bind($routeName);
 
-            // apply security if required
-            $security = null;
-            if (isset($config["public"])) {
-                $security = ["public" => $config["public"]];
-            } elseif (!empty($config["security"])) {
-                $security = $config["security"];
+        }
+
+        // validation
+        if (!empty($routes["routes"])) {
+            if (!is_array($routes["routes"])) {
+                throw new RouteException("The routes data array for '$baseUrl' is not in the correct format");
             }
-            if ($security !== null) {
-                $this->securityContainer->setSecurityForRoute($routeName, $security);
+
+            foreach ($routes["routes"] as $routeName => $config) {
+                // route validation
+                if (empty($config["url"]) || empty($config["action"])) {
+                    throw new RouteException("The data for the '$routeName' route is missing required elements");
+                }
+                if (empty($config["method"])) {
+                    $config["method"] = "get";
+                } else {
+                    $config["method"] = strtolower($config["method"]);
+                    // check method is allowed
+                    if (!isset($this->allowedMethods[$config["method"]])) {
+                        throw new RouteException("The method '{$config["method"]}' for route '$routeName' is not allowed");
+                    }
+                }
+                // add the route
+                $this->application->{$config["method"]}($baseUrl . $config["url"], $config["action"])->bind($routeName);
+
+                // apply security if required
+                $security = null;
+                if (isset($config["public"])) {
+                    $security = ["public" => $config["public"]];
+                } elseif (!empty($config["security"])) {
+                    $security = $config["security"];
+                }
+                if ($security !== null) {
+                    $this->securityContainer->setSecurityForRoute($routeName, $security);
+                }
+                $hasProcessed = true;
             }
         }
+
+        if (!$hasProcessed) {
+            throw new RouteException("The routes configuration was empty. No routes or groups were defined for '$baseUrl'");
+        }
+
     }
 
 
