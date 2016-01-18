@@ -163,15 +163,15 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
     public function routeProvider()
     {
         return [
-            [
+            [ #0 no routes or groups
                 ["invalid" => "root"],
-                "/'routes'/"
+                "/routes/"
             ],
-            [
+            [ #1 "routes" is not an array
                 ["routes" => "not an array"],
                 "/not in the correct format/"
             ],
-            [
+            [ #2 route missing an action
                 [
                     "routes" => [
                         ["url" => "url"]
@@ -179,7 +179,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                 ],
                 "/route is missing required elements/"
             ],
-            [
+            [ #3 route missing a url
                 [
                     "routes" => [
                         ["action" => "action"]
@@ -187,7 +187,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                 ],
                 "/route is missing required elements/"
             ],
-            [
+            [ #4 route has invalid method
                 [
                     "routes" => [
                         [
@@ -199,7 +199,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                 ],
                 "/The method .* is not allowed/"
             ],
-            [
+            [ #5 valid route with method
                 [
                     "routes" => [
                         [
@@ -218,7 +218,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                     ]
                 ]
             ],
-            [
+            [ #6 valid route, implicit GET
                 [
                     "routes" => [
                         [
@@ -232,6 +232,104 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                     [
                         "method" => "get",
                         "url" => "url",
+                        "action" => "action"
+                    ]
+                ]
+            ],
+            [ #7 "groups" is not an array
+                ["groups" => "not an array"],
+                "/not in the correct format/"
+            ],
+            [ #8 no url for a group
+                [
+                    "groups" => [
+                        "group" => ["no" => "url"]
+                    ]
+                ],
+                "/does not have a URL/"
+            ],
+            [ #9 exceptions thrown when recursing contain the url prefix
+                [
+                    "groups" => [
+                        "group" => [
+                            "urlPrefix" => "blah",
+                            "routes" => "not an array"
+                        ]
+                    ]
+                ],
+                "/'blah'/"
+            ],
+            [ #10 valid group
+                [
+                    "groups" => [
+                        "groupOne" => [
+                            "urlPrefix" => "foo",
+                            "routes" => [
+                                "one" => [
+                                    "url" => "bar",
+                                    "action" => "action"
+                                ],
+                                "two" => [
+                                    "method" => "post",
+                                    "url" => "baz",
+                                    "action" => "action"
+                                ],
+                            ]
+                        ],
+                        "groupTwo" => [
+                            "urlPrefix" => "fizz",
+                            "routes" => [
+                                "three" => [
+                                    "url" => "buzz",
+                                    "action" => "action"
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "",
+                [
+                    [
+                        "method" => "get",
+                        "url" => "foobar",
+                        "action" => "action"
+                    ],
+                    [
+                        "method" => "post",
+                        "url" => "foobaz",
+                        "action" => "action"
+                    ],
+                    [
+                        "method" => "get",
+                        "url" => "fizzbuzz",
+                        "action" => "action"
+                    ]
+                ]
+            ],
+            [ #12 nested groups
+                [
+                    "groups" => [
+                        "group" => [
+                            "urlPrefix" => "we-",
+                            "groups" => [
+                                "subgroup" => [
+                                    "urlPrefix" => "are-",
+                                    "routes" => [
+                                        "one" => [
+                                            "url" => "legion",
+                                            "action" => "action"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "",
+                [
+                    [
+                        "method" => "get",
+                        "url" => "we-are-legion",
                         "action" => "action"
                     ]
                 ]
