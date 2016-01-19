@@ -77,15 +77,15 @@ class FrontController
     {
         $this->serviceProviders = [];
         foreach ($providers as $provider) {
-            if ($provider instanceof ServiceProviderInterface || $provider instanceof BootableProviderInterface) {
-                $this->addProvider($provider);
-            }
+            $this->addProvider($provider);
         }
     }
 
-    public function addProvider(ServiceProviderInterface $provider)
+    public function addProvider($provider)
     {
-        $this->serviceProviders[] = $provider;
+        if ($provider instanceof ServiceProviderInterface || $provider instanceof BootableProviderInterface) {
+            $this->serviceProviders[] = $provider;
+        }
     }
 
     public function runApplication()
