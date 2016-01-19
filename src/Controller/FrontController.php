@@ -5,9 +5,11 @@
 namespace Silktide\LazyBoy\Controller;
 
 use Pimple\ServiceProviderInterface;
+use Silex\Api\BootableProviderInterface;
 use Silktide\Syringe\ContainerBuilder;
 use Silex\Application;
 use Silktide\LazyBoy\Config\RouteLoader;
+use Silktide\Syringe\SyringeServiceProvider;
 
 /**
  * FrontController - loads routes, builds and runs the application
@@ -75,32 +77,40 @@ class FrontController
     {
         $this->serviceProviders = [];
         foreach ($providers as $provider) {
-            if ($provider instanceof ServiceProviderInterface) {
+            if ($provider instanceof ServiceProviderInterface || $provider instanceof BootableProviderInterface) {
                 $this->addProvider($provider);
-            } elseif (is_array($provider) && $provider[0] instanceof ServiceProviderInterface) {
-                $this->addProvider($provider[0], $provider[1]);
             }
         }
     }
 
-    public function addProvider(ServiceProviderInterface $provider, array $values=[])
+    public function addProvider(ServiceProviderInterface $provider)
     {
-        $this->serviceProviders[] = [$provider, $values];
+        $this->serviceProviders[] = $provider;
     }
 
     public function runApplication()
     {
         // create application
-        $this->builder->setContainerClass($this->applicationClass);
-        /** @var Application $application */
-        $application = $this->builder->createContainer();
+        /**
+         * @var $application Application
+         */
+        $application = new $this->applicationClass();
+
         $application["app"] = function() use ($application) {
             return $application;
         };
 
+        $syringeServiceProviderIncluded = false;
         // register service controller provider
         foreach ($this->serviceProviders as $provider) {
-            $application->register($provider[0], $provider[1]);
+            $application->register($provider);
+            if ($provider instanceof SyringeServiceProvider) {
+                $syringeServiceProviderIncluded = true;
+            }
+        }
+
+        if (!$syringeServiceProviderIncluded) {
+            $application->register(new SyringeServiceProvider($this->builder));
         }
 
         // load routes

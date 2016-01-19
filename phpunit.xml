@@ -4,6 +4,7 @@
         <testsuite name="test">
             <directory suffix=".php">test</directory>
             <exclude>test/bootstrap.php</exclude>
+            <exclude>mocks/*</exclude>
         </testsuite>
     </testsuites>
 </phpunit>

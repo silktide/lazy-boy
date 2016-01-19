@@ -5,6 +5,7 @@
 namespace Silktide\LazyBoy\Test;
 
 use Silktide\LazyBoy\Controller\FrontController;
+use Silktide\LazyBoy\Test\Mocks\MockApplication;
 use Silktide\Syringe\ContainerBuilder;
 use Silktide\LazyBoy\Config\RouteLoader;
 use Silex\Application;
@@ -13,7 +14,8 @@ use Silex\Provider\ServiceControllerServiceProvider;
 /**
  *
  */
-class FrontControllerTest extends \PHPUnit_Framework_TestCase {
+class FrontControllerTest extends \PHPUnit_Framework_TestCase
+{
 
     /**
      * @var \Mockery\Mock|ContainerBuilder
@@ -67,20 +69,20 @@ class FrontControllerTest extends \PHPUnit_Framework_TestCase {
 
     public function testApplicationRun()
     {
-        $appClass = FrontController::DEFAULT_APPLICATION_CLASS;
+        MockApplication::reset();
+        $mockApplication = new MockApplication();
+        $mockAppClass = get_class($mockApplication);
         $configDir = "configDir";
 
-        $this->builder->shouldReceive("setContainerClass")->with($appClass)->once();
-        $this->builder->shouldReceive("createContainer")->once()->andReturn($this->application);
-
-        $this->application->shouldReceive("offsetSet")->with("app", \Mockery::type("callable"))->once();
-        $this->application->shouldReceive("offsetGet")->with("routeLoader")->once()->andReturn($this->routeLoader);
-        $this->application->shouldReceive("run")->once();
-
+        $mockApplication->setReturn("offsetGet", $this->routeLoader);
         $this->routeLoader->shouldReceive("parseRoutes")->with("/^$configDir/")->once();
 
-        $controller = new FrontController($this->builder, $configDir, $appClass);
+        $controller = new FrontController($this->builder, $configDir, $mockAppClass);
         $controller->runApplication();
+
+        $this->assertEquals("app", $mockApplication->getCalledResponse("offsetSet")[0]);
+        $this->assertEquals(["routeLoader"], $mockApplication->getCalledResponse("offsetGet"));
+        $this->assertEquals([], $mockApplication->getCalledResponse("run"));
     }
 
     public function testSettingProviders()
@@ -89,16 +91,19 @@ class FrontControllerTest extends \PHPUnit_Framework_TestCase {
             $this->serviceProvider,
             $this->serviceProvider,
             $this->serviceProvider,
-            [$this->serviceProvider, ["myValue" => "value"]]
         ];
 
-        $this->builder->shouldReceive("createContainer")->once()->andReturn($this->application);
-        $this->application->shouldReceive("offsetGet")->with("routeLoader")->once()->andReturn($this->routeLoader);
-        $this->application->shouldReceive("register")->with($this->serviceProvider, [])->times(3);
-        $this->application->shouldReceive("register")->with($this->serviceProvider, ["myValue" => "value"])->once();
-
-        $controller = new FrontController($this->builder, "configDir", FrontController::DEFAULT_APPLICATION_CLASS, $providers);
+        MockApplication::reset();
+        $mockApplication = new MockApplication();
+        $mockApplication->setReturn("offsetGet", $this->routeLoader);
+        $controller = new FrontController($this->builder, "configDir", get_class($mockApplication), $providers);
         $controller->runApplication();
+
+        $this->assertEquals(["routeLoader"], $mockApplication->getCalledResponse("offsetGet"));
+        $this->assertEquals([$this->serviceProvider], $mockApplication->getCalledResponse("register"));
+        $this->assertEquals([$this->serviceProvider], $mockApplication->getCalledResponse("register"));
+        $this->assertEquals([$this->serviceProvider], $mockApplication->getCalledResponse("register"));
+
 
     }
 
