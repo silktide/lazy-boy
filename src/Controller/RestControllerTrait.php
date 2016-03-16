@@ -20,7 +20,7 @@ trait RestControllerTrait
         if ($data === null) {
             $data = ["success" => true];
         } elseif (is_array($data)) {
-            $data = $this->filterProhibitedKeys($data);
+            $data = $this->normaliseData($data);
         }
         return new JsonResponse($data, $code);
     }
@@ -32,18 +32,18 @@ trait RestControllerTrait
             "error" => $message
         ];
         if (!empty($data)) {
-            $payload["context"] = $this->filterProhibitedKeys($data);
+            $payload["context"] = $this->normaliseData($data);
         }
         return new JsonResponse($payload, $code);
     }
 
-    private function filterProhibitedKeys($data)
+    protected function normaliseData($data)
     {
         foreach ($data as $key => $value) {
             if (isset($this->prohibitedKeys[$key])) {
                 unset ($data[$key]);
             } elseif (is_array($value)) {
-                $data[$key] = $this->filterProhibitedKeys($value);
+                $data[$key] = $this->normaliseData($value);
             }
         }
         return $data;
