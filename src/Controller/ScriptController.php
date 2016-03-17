@@ -54,17 +54,26 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $puzzleConfigUseStatement = "";
         $puzzleConfigLoadFiles = "";
         $dependencies = $package->getRequires();
-        if (!empty($dependencies["downsider/puzzle-di"])) {
-            // get package namespace
-            $autoload = $package->getAutoload();
-            if (!empty($autoload["psr-4"])) {
-                $style = "psr-4";
-            } elseif (!empty($autoload["psr-0"])) {
-                $style = "psr-0";
+        $puzzleDIPackageName = "downsider/puzzle-di";
+        if (!empty($dependencies[$puzzleDIPackageName])) {
+            // find PuzzleConfig's namespace
+            if (!empty($extra[$puzzleDIPackageName]["namespace"])) {
+                // puzzle has specified the namespace to use
+                $namespace = $extra[$puzzleDIPackageName]["namespace"];
             } else {
-                throw new InstallationException("LazyBoy requires your module to use psr-4 or psr-0 autoloading");
+                // get package namespace
+                $autoload = $package->getAutoload();
+                if (!empty($autoload["psr-4"])) {
+                    $style = "psr-4";
+                } elseif (!empty($autoload["psr-0"])) {
+                    $style = "psr-0";
+                } else {
+                    throw new InstallationException("LazyBoy requires your module to use psr-4 or psr-0 autoloading");
+                }
+
+                // use the first entry in the autoload array
+                $namespace = array_keys($autoload[$style])[0];
             }
-            $namespace = array_keys($autoload[$style])[0];
 
             $puzzleConfigUseStatement = "use {$namespace}PuzzleConfig;";
             $puzzleConfigLoadFiles =
