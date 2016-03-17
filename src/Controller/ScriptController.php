@@ -54,12 +54,12 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $puzzleConfigUseStatement = "";
         $puzzleConfigLoadFiles = "";
         $dependencies = $package->getRequires();
-        $puzzleDIPackageName = "downsider/puzzle-di";
-        if (!empty($dependencies[$puzzleDIPackageName])) {
+        $puzzleDiPackageName = "downsider/puzzle-di";
+        if (!empty($dependencies[$puzzleDiPackageName])) {
             // find PuzzleConfig's namespace
-            if (!empty($extra[$puzzleDIPackageName]["namespace"])) {
+            if (!empty($extra[$puzzleDiPackageName]["namespace"])) {
                 // puzzle has specified the namespace to use
-                $namespace = $extra[$puzzleDIPackageName]["namespace"];
+                $namespace = $extra[$puzzleDiPackageName]["namespace"];
             } else {
                 // get package namespace
                 $autoload = $package->getAutoload();
