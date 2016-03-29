@@ -101,8 +101,11 @@ class RouteLoader
             }
 
             foreach ($routes["routes"] as $routeName => $config) {
+                // build the URL
+                $url = $baseUrl . (isset($config["url"])? $config["url"]: "");
+
                 // route validation
-                if (empty($config["url"]) || empty($config["action"])) {
+                if (empty($url) || empty($config["action"])) {
                     throw new RouteException("The data for the '$routeName' route is missing required elements");
                 }
                 if (empty($config["method"])) {
@@ -115,7 +118,7 @@ class RouteLoader
                     }
                 }
                 // add the route
-                $this->application->{$config["method"]}($baseUrl . $config["url"], $config["action"])->bind($routeName);
+                $this->application->{$config["method"]}($url, $config["action"])->bind($routeName);
 
                 // apply security if required
                 $security = null;

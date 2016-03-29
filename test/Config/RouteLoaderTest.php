@@ -306,6 +306,38 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
                     ]
                 ]
             ],
+            [ #11 grouped routes that have no URL of their own
+                [
+                    "groups" => [
+                        "groupOne" => [
+                            "urlPrefix" => "blah",
+                            "routes" => [
+                                "one" => [
+                                    "url" => "",
+                                    "action" => "action"
+                                ],
+                                "two" => [
+                                    "action" => "action",
+                                    "method" => "post"
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "",
+                [
+                    [
+                        "method" => "get",
+                        "url" => "blah",
+                        "action" => "action"
+                    ],
+                    [
+                        "method" => "post",
+                        "url" => "blah",
+                        "action" => "action"
+                    ]
+                ]
+            ],
             [ #12 nested groups
                 [
                     "groups" => [
