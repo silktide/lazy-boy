@@ -19,17 +19,19 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
 
     public function register(Container $pimple)
     {
-        // nothing to do here
+        $pimple["cors.defaultHeaders"] = ["Content-Type", "Authorization"];
+        $pimple["cors.additionalHeaders"] = [];
     }
 
     public function boot(Application $app) {
+        $allowedHeaders = array_merge($app["cors.defaultHeaders"], $app["cors.additionalHeaders"]);
         //handling CORS preflight request
-        $app->before(function (Request $request) {
+        $app->before(function (Request $request) use ($allowedHeaders) {
             if ($request->getMethod() === "OPTIONS") {
                 $response = new Response();
                 $response->headers->set("Access-Control-Allow-Origin","*");
                 $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-                $response->headers->set("Access-Control-Allow-Headers","Content-Type,Authorization");
+                $response->headers->set("Access-Control-Allow-Headers",implode(",", $allowedHeaders));
                 $response->setStatusCode(200);
                 $response->send();
                 exit();
