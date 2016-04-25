@@ -51,4 +51,20 @@ trait RestControllerTrait
         return $data;
     }
 
+    protected function addProhibitedKeys(array $keys)
+    {
+        foreach ($keys as $key) {
+            if (is_string($key)) {
+                $this->prohibitedKeys[$key] = true;
+            }
+        }
+    }
+
+    protected function removeProhibitedKeys(array $keys)
+    {
+        foreach ($keys as $key) {
+            unset($this->prohibitedKeys[$key]);
+        }
+    }
+
 }
