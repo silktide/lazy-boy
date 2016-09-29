@@ -12,7 +12,7 @@ $serviceNames = $container->keys();
 $application = new Application("CLI", "1.0.0");
 foreach ($serviceNames as $name) {
     // commands are suffixed with ".command" ...
-    if (strrpos($name, ".command") == strlen($name) - 8) {
+    if (strrpos($name, ".command") === strlen($name) - 8) {
         $command = $container[$name];
         // ... and are instances of the Symfony Command class
         if ($command instanceof Command) {
