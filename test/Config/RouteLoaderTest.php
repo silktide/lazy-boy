@@ -12,9 +12,6 @@ use Silktide\Syringe\Loader\JsonLoader;
 use Silktide\Syringe\Loader\YamlLoader;
 use Silktide\LazyBoy\Security\SecurityContainer;
 
-/**
- *
- */
 class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
 
     /**
