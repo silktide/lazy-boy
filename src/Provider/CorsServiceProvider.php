@@ -32,7 +32,7 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
             if ($request->getMethod() === "OPTIONS") {
                 $response = new Response();
                 $response->headers->set("Access-Control-Allow-Origin","*");
-                $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+                $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,PATCH,OPTIONS");
                 $response->headers->set("Access-Control-Allow-Headers",implode(",", $allowedRequestHeaders));
 
                 $response->setStatusCode(200);
@@ -44,7 +44,7 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
         //handling CORS response with right headers
         $app->after(function (Request $request, Response $response) use ($allowedResponseHeaders) {
             $response->headers->set("Access-Control-Allow-Origin","*");
-            $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+            $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,PATCH,OPTIONS");
             $response->headers->set("Access-Control-Expose-Headers",implode(",", $allowedResponseHeaders));
         });
     }
