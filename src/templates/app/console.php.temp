@@ -11,13 +11,17 @@ $container = $builder->createContainer();
 $serviceNames = $container->keys();
 $application = new Application("CLI", "1.0.0");
 
-if ($container->offsetExists("#commands")) {
+if ($container->offsetExists("#console.commands")) {
     /**
      * @var TagCollection $commandCollection
      */
-    $commandCollection = $container["#commands"];
-    foreach ($commandCollection->getServices() as $command) {
-        $application->add($container[$serviceName]);
+    $commandCollection = $container["#console.commands"];
+    foreach ($commandCollection->getServices() as $serviceName) {
+        $service = $container[$serviceName];
+        if (!is_subclass_of($service, Command::class)) {
+            throw new \Exception("The service '{$serviceName}' does not extend the Symfony Console Command");
+        }
+        $application->add($service);
     }
 }
 
