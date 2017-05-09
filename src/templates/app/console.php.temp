@@ -17,7 +17,7 @@ if ($container->offsetExists("#commands")) {
      */
     $commandCollection = $container["#commands"];
     foreach ($commandCollection->getServices() as $command) {
-        $application->add($command);
+        $application->add($container[$serviceName]);
     }
 }
 
