@@ -1,7 +1,5 @@
 <?php
-/**
- * Silktide Nibbler. Copyright 2013-2014 Silktide Ltd. All Rights Reserved.
- */
+
 namespace Silktide\LazyBoy\Test\Config;
 
 use org\bovigo\vfs\vfsStream;
@@ -14,9 +12,6 @@ use Silktide\Syringe\Loader\JsonLoader;
 use Silktide\Syringe\Loader\YamlLoader;
 use Silktide\LazyBoy\Security\SecurityContainer;
 
-/**
- *
- */
 class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
 
     /**

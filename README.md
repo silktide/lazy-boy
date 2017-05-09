@@ -12,10 +12,14 @@ If you have the [Symfony console] installed, it will also create a console scrip
 finds in the service container (any service name which ends with ".command" and is an instance of the Symfony Command 
 class). You can also use [Puzzle-DI] to load service configuration from modules.
 
+## Requirements
+
+* [Silex] 2.0+
+
 ## Installation
 install using composer:
 
-    composer require silktide/lazy-boy:^1.0
+    composer require silktide/lazy-boy:^2.0
 
 Lazy Boy will automatically generate several files from templates, whenever `composer update` or `composer install` is run.
 You are free to make modifications; Lazy Boy will not overwrite a file which already exists, so committing those changes 
