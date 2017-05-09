@@ -8,12 +8,14 @@ use Silktide\Syringe\ReferenceResolver;
 use Silktide\Syringe\ContainerBuilder;
 use Silktide\Syringe\Loader\JsonLoader;
 use Silktide\Syringe\Loader\YamlLoader;
+use Silktide\Syringe\Loader\PhpLoader;
 {{puzzleConfigUseStatement}}
 
 $resolver = new ReferenceResolver();
 $loaders = [
     new JsonLoader(),
-    new YamlLoader()
+    new YamlLoader(),
+    new PhpLoader()
 ];
 
 $configPaths = [
