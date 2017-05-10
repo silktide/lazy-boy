@@ -1,0 +1,15 @@
+<?php
+
+require_once __DIR__."/app/bootstrap.php";
+
+$container = $builder->createContainer();
+$serviceName = "silktide_doctrine-wrapper.entity_manager";
+
+if (!$container->offsetExists($serviceName)) {
+    throw new \Exception("Service '{$serviceName}' does not exist. Please ensure that PuzzleDI is correctly setup");
+}
+
+return \Doctrine\ORM\Tools\Console\ConsoleRunner::createHelperSet(
+    $container->offsetGet($serviceName)
+);
+

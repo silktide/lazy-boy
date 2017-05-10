@@ -117,14 +117,24 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $packages = $repo->getPackages();
         foreach ($packages as $package) {
             /** @var PackageInterface $package */
-            if ($package->getName() == "symfony/console") {
-                // add the console to the template list
-                $templates["console"] = [
-                    $templateDir . "/app/console.php.temp",
-                    [],
-                    [$appDir . "/app/console.php"]
-                ];
-                break;
+
+            switch ($package->getName()) {
+                case "symfony/console":
+                    // add the console to the template list
+                    $templates["console"] = [
+                        $templateDir . "/app/console.php.temp",
+                        [],
+                        [$appDir . "/app/console.php"]
+                    ];
+                    break;
+
+                case "silktide/doctrine-wrapper":
+                    $templates["doctrine"] = [
+                        $templateDir . "/cli-config.php.temp",
+                        [],
+                        [$appDir . "/cli-config.php"]
+                    ];
+                    break;
             }
         }
 

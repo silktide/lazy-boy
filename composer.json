@@ -18,7 +18,8 @@
   },
   "suggest": {
     "symfony/console": "Run CLI commands",
-    "downsider/puzzle-di": "Allow installed modules to set up dependency injection for their components"
+    "downsider/puzzle-di": "Allow installed modules to set up dependency injection for their components",
+    "silktide/doctrine-wrapper": "Gives us the base classes needed to use Doctrine in a DI approach"
   },
   "autoload": {
     "psr-4": {
