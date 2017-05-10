@@ -29,4 +29,5 @@ foreach ($loaders as $loader) {
 $builder->setApplicationRootDirectory($appDir);
 
 {{puzzleConfigLoadFiles}}
+
 $builder->addConfigFile("services.yml");
