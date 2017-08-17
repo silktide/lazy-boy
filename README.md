@@ -62,6 +62,31 @@ router.
 
 For each route, the `url` and `action` parameters are required, but `method` is optional and defaults to `GET`.
 
+You can also use the `assert` parameter to overwrite the default regex for parameter of a route. For example
+
+```yaml
+    routes:
+        route-one:
+            url: /user/{id}
+            action: "test_controller:doSomething"
+            method: get
+```
+
+The URL `/user/56` would match and the `id` parameter would come back as `56`.
+The URL `/user/56/foo` would not match.
+```yaml
+    routes:
+        route-two:
+            url: /user/{my_wildcard}
+            action: "test_controller:doSomethingElse
+            method: get
+            assert:
+                my_wildcard: ".*"
+```
+
+Going to the URL `/user/56` would match and again, the `my_wildcard` parameter would come back as `56`.
+Going the the URL `/user/56/foo` would match and the `my_wildcard` parameter would return `56/foo`
+
 ### Groups
 
 If you have many routes with similar URLs, such as:

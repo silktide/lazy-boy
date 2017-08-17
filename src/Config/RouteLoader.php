@@ -3,6 +3,7 @@
 namespace Silktide\LazyBoy\Config;
 
 use Silex\Application;
+use Silex\Controller;
 use Silktide\LazyBoy\Exception\RouteException;
 use Silktide\LazyBoy\Security\SecurityContainer;
 use Silktide\Syringe\Exception\LoaderException;
@@ -118,7 +119,16 @@ class RouteLoader
                     }
                 }
                 // add the route
-                $this->application->{$config["method"]}($url, $config["action"])->bind($routeName);
+                /**
+                 * @var Controller $controller
+                 */
+                $controller = $this->application->{$config["method"]}($url, $config["action"])->bind($routeName);
+
+                if (isset($config["assert"]) && is_array($config["assert"])) {
+                    foreach ($config["assert"] as $variable => $regex) {
+                        $controller->assert($variable, $regex);
+                    }
+                }
 
                 // apply security if required
                 $security = null;
