@@ -1,7 +1,8 @@
-
 parameters:
   securityContainer.defaultSecurity:
     public: true
+
+  debug: false
 
 services:
   routeLoader:
