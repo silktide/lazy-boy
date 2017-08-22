@@ -20,8 +20,8 @@ $frontController = new FrontController(
         new CorsServiceProvider(),
         new JsonPostServiceProvider(),
 
-        // If you're only returning JSON, you want to uncomment the below. It will cause errors to always return as JSON
-        // new JsonErrorProvider()
+        // If you're not using this endpoint as a JSON API, comment the line below
+        new JsonErrorProvider()
     ]
 );
 $frontController->runApplication();
