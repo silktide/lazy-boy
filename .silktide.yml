@@ -3,4 +3,5 @@ app: lazy-boy
 type: library
 source: open
 language: php
+protected: false
 ...
