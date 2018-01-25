@@ -31,7 +31,7 @@ following to your composer file:
 
 ```json
 "extra": {
-  "lazy-boy": {
+  "silktide/lazy-boy": {
     "prevent-install": true
   }
 }

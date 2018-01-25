@@ -37,7 +37,10 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $composer = $event->getComposer();
         $package = $composer->getPackage();
         $extra = $package->getExtra();
-        if (!empty($extra["lazy-boy"]["prevent-install"])) {
+        if (
+            !empty($extra["lazy-boy"]["prevent-install"]) ||
+            !empty($extra["silktide/lazy-boy"]["prevent-install"])
+        ) {
             return;
         }
 
