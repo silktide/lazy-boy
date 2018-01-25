@@ -32,6 +32,8 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
     public static function install(Event $event)
     {
+        $output = $event->getIO();
+
         $composer = $event->getComposer();
         $package = $composer->getPackage();
         $extra = $package->getExtra();
@@ -117,7 +119,6 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $packages = $repo->getPackages();
         foreach ($packages as $package) {
             /** @var PackageInterface $package */
-
             switch ($package->getName()) {
                 case "symfony/console":
                     // add the console to the template list
@@ -136,9 +137,50 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     ];
                     break;
             }
+
+            // add any templates that this package has defined
+            // this will overwrite any existing template of the same name, unless it is protected
+            $extra = $package->getExtra();
+
+            $protected = ["bootstrap" => true];
+
+            if (!empty($extra["silktide/lazy-boy"]) && is_array($extra["silktide/lazy-boy"])) {
+                foreach ($extra["silktide/lazy-boy"] as $templateName => $config) {
+
+                    // prevent protected templates being overwritten
+                    if (isset($protected[$templateName])) {
+                        $output->write("<info>LazyBoy:</info> <error>Package '{$package->getName()}' tried to overwrite the protected template '$templateName'</error>");
+                    }
+
+                    // validate config
+                    if (empty($config["template"]) || empty($config["output"])) {
+                        $output->write("<info>LazyBoy:</info> <error>Invalid config for template '$templateName' in package '{$package->getName()}'</error>");
+                        continue;
+                    }
+
+                    // check the template file exists
+                    $packageDir = $composer->getInstallationManager()->getInstallPath($package);
+                    $templateFile = $packageDir . "/" . ltrim($config["template"], "/");
+
+                    if (!file_exists($templateFile)) {
+                        $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '{$package->getName()}' does not exist</error>");
+                        continue;
+                    }
+
+                    // add the template to the array
+                    $templates[$templateName] = [
+                        $templateFile,
+                        [],
+                        [$appDir . "/" . ltrim($config["output"], "/")]
+                    ];
+                }
+            }
+
         }
 
-        $output = $event->getIO();
+
+
+
         foreach ($templates as $template) {
             static::processTemplate($template[0], $template[1], $template[2], $output);
         }
