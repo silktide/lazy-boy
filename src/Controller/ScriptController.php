@@ -140,6 +140,7 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     ];
                     break;
 
+                // TODO: Deprecated usage. This should be removed when the doctrine-wrapper registers its template through composer
                 case "silktide/doctrine-wrapper":
                     $templates["doctrine"] = [
                         $templateDir . "/cli-config.php.temp",
