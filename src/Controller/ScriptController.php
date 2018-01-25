@@ -120,9 +120,17 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $repo = $composer->getRepositoryManager()->getLocalRepository();
         // loop through the packages and check the package name
         $packages = $repo->getPackages();
+
+        $whiteListedPackages = !empty($extra["silktide/lazy-boy"]["whiteListedPackages"])? $extra["silktide/lazy-boy"]["whiteListedPackages"]: [];
+        $whiteListedPackages = is_array($whiteListedPackages)? array_flip($whiteListedPackages): [];
+
+        $protectedTemplates = ["bootstrap" => true];
+
         foreach ($packages as $package) {
             /** @var PackageInterface $package */
-            switch ($package->getName()) {
+            $packageName = $package->getName();
+
+            switch ($packageName) {
                 case "symfony/console":
                     // add the console to the template list
                     $templates["console"] = [
@@ -141,23 +149,26 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     break;
             }
 
+            if (!isset($whiteListedPackages[$packageName])) {
+                // this package is not allowed to register templates
+                continue;
+            }
+
             // add any templates that this package has defined
             // this will overwrite any existing template of the same name, unless it is protected
             $extra = $package->getExtra();
-
-            $protected = ["bootstrap" => true];
 
             if (!empty($extra["silktide/lazy-boy"]) && is_array($extra["silktide/lazy-boy"])) {
                 foreach ($extra["silktide/lazy-boy"] as $templateName => $config) {
 
                     // prevent protected templates being overwritten
-                    if (isset($protected[$templateName])) {
-                        $output->write("<info>LazyBoy:</info> <error>Package '{$package->getName()}' tried to overwrite the protected template '$templateName'</error>");
+                    if (isset($protectedTemplates[$templateName])) {
+                        $output->write("<info>LazyBoy:</info> <error>Package '$packageName' tried to overwrite the protected template '$templateName'</error>");
                     }
 
                     // validate config
                     if (empty($config["template"]) || empty($config["output"])) {
-                        $output->write("<info>LazyBoy:</info> <error>Invalid config for template '$templateName' in package '{$package->getName()}'</error>");
+                        $output->write("<info>LazyBoy:</info> <error>Invalid config for template '$templateName' in package '$packageName'</error>");
                         continue;
                     }
 
@@ -166,7 +177,7 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     $templateFile = $packageDir . "/" . ltrim($config["template"], "/");
 
                     if (!file_exists($templateFile)) {
-                        $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '{$package->getName()}' does not exist</error>");
+                        $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '$packageName' does not exist</error>");
                         continue;
                     }
 
