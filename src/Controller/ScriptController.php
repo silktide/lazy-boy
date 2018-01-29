@@ -159,8 +159,8 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
             // this will overwrite any existing template of the same name, unless it is protected
             $extra = $package->getExtra();
 
-            if (!empty($extra["silktide/lazy-boy"]) && is_array($extra["silktide/lazy-boy"])) {
-                foreach ($extra["silktide/lazy-boy"] as $templateName => $config) {
+            if (!empty($extra["silktide/lazy-boy"]["templates"]) && is_array($extra["silktide/lazy-boy"]["templates"])) {
+                foreach ($extra["silktide/lazy-boy"]["templates"] as $templateName => $config) {
 
                     // prevent protected templates being overwritten
                     if (isset($protectedTemplates[$templateName])) {
