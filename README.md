@@ -190,6 +190,22 @@ Currently the following templates are predefined
 
 ** *This template depends on the `symfony/console` library being present in the package list*
 
+### Usage In Applications
+
+In order to prevent dependencies from installing templated files ad hoc, Lazy Boy requires that you whitelist the 
+package name in your application, before it will install any custom templates. This is done by adding the following code
+to the applications composer.json file
+
+```json
+"extra": {
+  "silktide/lazy-boy": {
+    "whiteListedPackages": [
+      "your/package-name"
+    ]
+  }
+}
+``` 
+
 ## Contributing
 
 If you have improvements you would like to see, open an issue in this github project or better yet, fork the project,
