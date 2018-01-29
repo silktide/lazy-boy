@@ -86,33 +86,33 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
         $templates = [
             "routes" => [
-                $templateDir . "/app/config/routes.yml.temp",
-                [],
-                [$appDir . "/app/config/routes.yml", $appDir . "/app/config/routes.json"]
+                "template" => $templateDir . "/app/config/routes.yml.temp",
+                "replacements" => [],
+                "output" => [$appDir . "/app/config/routes.yml", $appDir . "/app/config/routes.json"]
             ],
             "services" => [
-                $templateDir . "/app/config/services.yml.temp",
-                [],
-                [$appDir . "/app/config/services.yml", $appDir . "/app/config/services.json"]
+                "template" => $templateDir . "/app/config/services.yml.temp",
+                "replacements" => [],
+                "output" => [$appDir . "/app/config/services.yml", $appDir . "/app/config/services.json"]
             ],
             "bootstrap" => [
-                $templateDir . "/app/bootstrap.php.temp",
-                [
+                "template" => $templateDir . "/app/bootstrap.php.temp",
+                "replacements" => [
                     "puzzleConfigUseStatement" => $puzzleConfigUseStatement,
                     "puzzleConfigLoadFiles" => $puzzleConfigLoadFiles
                 ],
-                [$appDir . "/app/bootstrap.php"]
+                "output" => $appDir . "/app/bootstrap.php"
             ],
 
             "index" => [
-                $templateDir . "/web/index.php.temp",
-                [],
-                [$appDir . "/web/index.php"]
+                "template" => $templateDir . "/web/index.php.temp",
+                "replacements" => [],
+                "output" => $appDir . "/web/index.php"
             ],
             "htaccess" => [
-                $templateDir . "/web/.htaccess.temp",
-                [],
-                [$appDir . "/web/.htaccess"]
+                "template" => $templateDir . "/web/.htaccess.temp",
+                "replacements" => [],
+                "output" => $appDir . "/web/.htaccess"
             ]
         ];
 
@@ -134,18 +134,18 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                 case "symfony/console":
                     // add the console to the template list
                     $templates["console"] = [
-                        $templateDir . "/app/console.php.temp",
-                        [],
-                        [$appDir . "/app/console.php"]
+                        "template" => $templateDir . "/app/console.php.temp",
+                        "replacements" => [],
+                        "output" => $appDir . "/app/console.php"
                     ];
                     break;
 
                 // TODO: Deprecated usage. This should be removed when the doctrine-wrapper registers its template through composer
                 case "silktide/doctrine-wrapper":
                     $templates["doctrine"] = [
-                        $templateDir . "/cli-config.php.temp",
-                        [],
-                        [$appDir . "/cli-config.php"]
+                        "template" => $templateDir . "/cli-config.php.temp",
+                        "replacements" => [],
+                        "output" => $appDir . "/cli-config.php"
                     ];
                     break;
             }
@@ -167,6 +167,10 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                         $output->write("<info>LazyBoy:</info> <error>Package '$packageName' tried to overwrite the protected template '$templateName'</error>");
                     }
 
+                    if (!empty($templates[$templateName])) {
+                        $config = array_replace($templates[$templateName], $config);
+                    }
+
                     // validate config
                     if (empty($config["template"]) || empty($config["output"])) {
                         $output->write("<info>LazyBoy:</info> <error>Invalid config for template '$templateName' in package '$packageName'</error>");
@@ -175,18 +179,27 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
                     // check the template file exists
                     $packageDir = $composer->getInstallationManager()->getInstallPath($package);
-                    $templateFile = $packageDir . "/" . ltrim($config["template"], "/");
+
+                    $templateFile = $config["template"];
+                    if (strpos($templateFile, $appDir) === false) {
+                        $templateFile = $packageDir . "/" . ltrim($templateFile, "/");
+                    }
 
                     if (!file_exists($templateFile)) {
                         $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '$packageName' does not exist</error>");
                         continue;
                     }
 
+                    $outputFile = $config["output"];
+                    if (strpos($outputFile, $appDir) === false) {
+                        $outputFile = $appDir . "/" . ltrim($outputFile, "/");
+                    }
+
                     // add the template to the array
                     $templates[$templateName] = [
-                        $templateFile,
-                        [],
-                        [$appDir . "/" . ltrim($config["output"], "/")]
+                        "template" => $templateFile,
+                        "replacements" => isset($config["replacements"])? $config["replacements"]: [],
+                        "output" => $outputFile
                     ];
                 }
             }
@@ -197,7 +210,7 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
 
         foreach ($templates as $template) {
-            static::processTemplate($template[0], $template[1], $template[2], $output);
+            static::processTemplate($template["template"], $template["replacements"], $template["output"], $output);
         }
     }
 
