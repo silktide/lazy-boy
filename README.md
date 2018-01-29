@@ -2,7 +2,7 @@
 A skeleton REST API application, using [Silex] and [Syringe] with support for [Puzzle-DI]
 
 ## Summary
-Lazy boy will create a skeleton [Silex] framework, so you can create REST APIs without having to bother with 
+Lazy Boy will create a skeleton [Silex] framework, so you can create REST APIs without having to bother with 
 boilerplate code.
 
 It is packaged with a route loader and uses [Syringe], which allows you to define both your routes and services in 
@@ -138,6 +138,57 @@ routes:
 Imported files are merged into a single configuration array before routes and groups are processed. Where route naming 
 conflicts arise, the latter import will overwrite the former and the importing file will take precedence over any 
 imported routes.
+
+## Custom Templates
+
+Lazy Boy uses a simple template system to create standard config and entry point files. It is possible to hook into this
+system to extend Lazy Boy and install custom templates.
+
+The extending library should be used as Lazy Boy is; required into an application as a composer dependency. The library 
+itself should require Lazy Boy as normal, but then add extra data to the composer.json file to configure the templates:
+
+```json
+{
+  "name": "silktide/lazy-boy-extension",
+  "require": {
+    "lazy-boy": "^2.0.0"
+  },
+  "extra": {
+    "silktide/lazy-boy": {
+      "templates": {
+        "template-name": {
+          "template": "[ file path of the template, relative to the library package root directory]",
+          "output": "[ file path of the output file, relative to the application root directory ]"
+        },
+        "index": {
+          "template": "[ the 'index' template already exists. You can override a template like this ... ]"
+        },
+        "console": {
+          "output": "[ ... or change where it's written to by overriding the output ]"
+        }
+      }
+    }
+  }
+}
+``` 
+
+As in the example config, you can replace an existing template with a custom one by using the same template name.
+You can choose to override the template and/or the output file location.
+
+Currently the following templates are predefined
+
+| Template Name | Output Location         |
+|---------------|-------------------------|
+| bootstrap *   | app/bootstrap.php       |
+| services      | app/config/services.yml |
+| routes        | app/config/routes.yml   |
+| console **    | app/console.php         |
+| index         | web/index.php           |
+| htaccess      | web/htaccess            |
+
+\* *This template is protected and cannot be overridden*
+
+** *This template depends on the `symfony/console` library being present in the package list*
 
 ## Contributing
 
