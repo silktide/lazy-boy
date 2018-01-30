@@ -32,10 +32,15 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
     public static function install(Event $event)
     {
+        $output = $event->getIO();
+
         $composer = $event->getComposer();
         $package = $composer->getPackage();
         $extra = $package->getExtra();
-        if (!empty($extra["lazy-boy"]["prevent-install"])) {
+        if (
+            !empty($extra["lazy-boy"]["prevent-install"]) ||
+            !empty($extra["silktide/lazy-boy"]["prevent-install"])
+        ) {
             return;
         }
 
@@ -81,33 +86,33 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
         $templates = [
             "routes" => [
-                $templateDir . "/app/config/routes.yml.temp",
-                [],
-                [$appDir . "/app/config/routes.yml", $appDir . "/app/config/routes.json"]
+                "template" => $templateDir . "/app/config/routes.yml.temp",
+                "replacements" => [],
+                "output" => [$appDir . "/app/config/routes.yml", $appDir . "/app/config/routes.json"]
             ],
             "services" => [
-                $templateDir . "/app/config/services.yml.temp",
-                [],
-                [$appDir . "/app/config/services.yml", $appDir . "/app/config/services.json"]
+                "template" => $templateDir . "/app/config/services.yml.temp",
+                "replacements" => [],
+                "output" => [$appDir . "/app/config/services.yml", $appDir . "/app/config/services.json"]
             ],
             "bootstrap" => [
-                $templateDir . "/app/bootstrap.php.temp",
-                [
+                "template" => $templateDir . "/app/bootstrap.php.temp",
+                "replacements" => [
                     "puzzleConfigUseStatement" => $puzzleConfigUseStatement,
                     "puzzleConfigLoadFiles" => $puzzleConfigLoadFiles
                 ],
-                [$appDir . "/app/bootstrap.php"]
+                "output" => $appDir . "/app/bootstrap.php"
             ],
 
             "index" => [
-                $templateDir . "/web/index.php.temp",
-                [],
-                [$appDir . "/web/index.php"]
+                "template" => $templateDir . "/web/index.php.temp",
+                "replacements" => [],
+                "output" => $appDir . "/web/index.php"
             ],
             "htaccess" => [
-                $templateDir . "/web/.htaccess.temp",
-                [],
-                [$appDir . "/web/.htaccess"]
+                "template" => $templateDir . "/web/.htaccess.temp",
+                "replacements" => [],
+                "output" => $appDir . "/web/.htaccess"
             ]
         ];
 
@@ -115,32 +120,97 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $repo = $composer->getRepositoryManager()->getLocalRepository();
         // loop through the packages and check the package name
         $packages = $repo->getPackages();
+
+        $whiteListedPackages = !empty($extra["silktide/lazy-boy"]["whiteListedPackages"])? $extra["silktide/lazy-boy"]["whiteListedPackages"]: [];
+        $whiteListedPackages = is_array($whiteListedPackages)? array_flip($whiteListedPackages): [];
+
+        $protectedTemplates = ["bootstrap" => true];
+
         foreach ($packages as $package) {
             /** @var PackageInterface $package */
+            $packageName = $package->getName();
 
-            switch ($package->getName()) {
+            switch ($packageName) {
                 case "symfony/console":
                     // add the console to the template list
                     $templates["console"] = [
-                        $templateDir . "/app/console.php.temp",
-                        [],
-                        [$appDir . "/app/console.php"]
+                        "template" => $templateDir . "/app/console.php.temp",
+                        "replacements" => [],
+                        "output" => $appDir . "/app/console.php"
                     ];
                     break;
 
+                // TODO: Deprecated usage. This should be removed when the doctrine-wrapper registers its template through composer
                 case "silktide/doctrine-wrapper":
                     $templates["doctrine"] = [
-                        $templateDir . "/cli-config.php.temp",
-                        [],
-                        [$appDir . "/cli-config.php"]
+                        "template" => $templateDir . "/cli-config.php.temp",
+                        "replacements" => [],
+                        "output" => $appDir . "/cli-config.php"
                     ];
                     break;
             }
+
+            if (!isset($whiteListedPackages[$packageName])) {
+                // this package is not allowed to register templates
+                continue;
+            }
+
+            // add any templates that this package has defined
+            // this will overwrite any existing template of the same name, unless it is protected
+            $extra = $package->getExtra();
+
+            if (!empty($extra["silktide/lazy-boy"]["templates"]) && is_array($extra["silktide/lazy-boy"]["templates"])) {
+                foreach ($extra["silktide/lazy-boy"]["templates"] as $templateName => $config) {
+
+                    // prevent protected templates being overwritten
+                    if (isset($protectedTemplates[$templateName])) {
+                        $output->write("<info>LazyBoy:</info> <error>Package '$packageName' tried to overwrite the protected template '$templateName'</error>");
+                    }
+
+                    if (!empty($templates[$templateName])) {
+                        $config = array_replace($templates[$templateName], $config);
+                    }
+
+                    // validate config
+                    if (empty($config["template"]) || empty($config["output"])) {
+                        $output->write("<info>LazyBoy:</info> <error>Invalid config for template '$templateName' in package '$packageName'</error>");
+                        continue;
+                    }
+
+                    // check the template file exists
+                    $packageDir = $composer->getInstallationManager()->getInstallPath($package);
+
+                    $templateFile = $config["template"];
+                    if (strpos($templateFile, $appDir) === false) {
+                        $templateFile = $packageDir . "/" . ltrim($templateFile, "/");
+                    }
+
+                    if (!file_exists($templateFile)) {
+                        $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '$packageName' does not exist</error>");
+                        continue;
+                    }
+
+                    $outputFile = $config["output"];
+                    if (strpos($outputFile, $appDir) === false) {
+                        $outputFile = $appDir . "/" . ltrim($outputFile, "/");
+                    }
+
+                    // add the template to the array
+                    $templates[$templateName] = [
+                        "template" => $templateFile,
+                        "replacements" => isset($config["replacements"])? $config["replacements"]: [],
+                        "output" => $outputFile
+                    ];
+                }
+            }
+
         }
 
-        $output = $event->getIO();
+
+
+
         foreach ($templates as $template) {
-            static::processTemplate($template[0], $template[1], $template[2], $output);
+            static::processTemplate($template["template"], $template["replacements"], $template["output"], $output);
         }
     }
 
