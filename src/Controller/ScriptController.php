@@ -222,8 +222,13 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
     }
 
-    protected static function processTemplate($templateFilePath, array $replacements = [], array $outputFilePaths = [], IOInterface $output)
+    protected static function processTemplate($templateFilePath, array $replacements = [], $outputFilePaths, IOInterface $output)
     {
+
+        if (!is_array($outputFilePaths)) {
+            $outputFilePaths = [$outputFilePaths];
+        }
+
         foreach ($outputFilePaths as $file) {
             // If any of the output file exists, DO NOT overwrite it
             if (file_exists($file)) {
