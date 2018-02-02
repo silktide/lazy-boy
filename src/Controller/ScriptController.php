@@ -191,7 +191,7 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     }
 
                     $outputFile = $config["output"];
-                    if (strpos($outputFile, $appDir) === false) {
+                    if (is_string($outputFile) && strpos($outputFile, $appDir) === false) {
                         $outputFile = $appDir . "/" . ltrim($outputFile, "/");
                     }
 
