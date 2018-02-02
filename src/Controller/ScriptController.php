@@ -180,20 +180,14 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
                     // check the template file exists
                     $packageDir = $composer->getInstallationManager()->getInstallPath($package);
 
-                    $templateFile = $config["template"];
-                    if (strpos($templateFile, $appDir) === false) {
-                        $templateFile = $packageDir . "/" . ltrim($templateFile, "/");
-                    }
+                    $templateFile = self::getAbsolutePath($config["template"], $appDir, $packageDir);
 
                     if (!file_exists($templateFile)) {
                         $output->write("<info>LazyBoy:</info> <error>The template file '$templateFile' in package '$packageName' does not exist</error>");
                         continue;
                     }
 
-                    $outputFile = $config["output"];
-                    if (is_string($outputFile) && strpos($outputFile, $appDir) === false) {
-                        $outputFile = $appDir . "/" . ltrim($outputFile, "/");
-                    }
+                    $outputFile = self::getAbsolutePath($config["output"], $appDir);
 
                     // add the template to the array
                     $templates[$templateName] = [
@@ -206,12 +200,26 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
 
         }
 
-
-
-
         foreach ($templates as $template) {
             static::processTemplate($template["template"], $template["replacements"], $template["output"], $output);
         }
+    }
+
+    protected static function getAbsolutePath($path, $rootPath, $targetPath = null) {
+
+        if (is_array($path)) {
+            foreach ($path as $i => $item) {
+                $path[$i] = self::getAbsolutePath($item, $rootPath, $targetPath);
+            }
+        } elseif (is_string($path) && strpos($path, $rootPath) === false) {
+            if (empty($targetPath)) {
+                $targetPath = $rootPath;
+            }
+            $path = $targetPath . "/" . ltrim($path, "/");
+        }
+
+        return $path;
+
     }
 
     protected static function processTemplate($templateFilePath, array $replacements = [], array $outputFilePaths = [], IOInterface $output)
