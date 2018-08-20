@@ -5,6 +5,9 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Silktide\Syringe\Syringe;
 
+/**
+ * @var \Pimple\Container $container
+ */
 $container = Syringe::build($syringeConfig);
 
 // find all commands and add them to the application
