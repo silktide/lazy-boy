@@ -79,9 +79,7 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
             }
 
             $puzzleConfigUseStatement = "use {$namespace}PuzzleConfig;";
-            $puzzleConfigLoadFiles =
-                '$puzzleConfigs = PuzzleConfig::getConfigPaths("silktide/syringe");' . "\n" .
-                '$builder->addConfigFiles($puzzleConfigs);';
+            $puzzleConfigLoadFiles ='$files = array_merge(PuzzleConfig::getConfigPaths("silktide/syringe"), $files);';
         }
 
         $templates = [

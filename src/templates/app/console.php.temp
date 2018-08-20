@@ -3,9 +3,12 @@ include_once("bootstrap.php");
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Silktide\Syringe\Syringe;
 
-/** @var Silktide\Syringe\ContainerBuilder $builder */
-$container = $builder->createContainer();
+/**
+ * @var \Pimple\Container $container
+ */
+$container = Syringe::build($syringeConfig);
 
 // find all commands and add them to the application
 $serviceNames = $container->keys();

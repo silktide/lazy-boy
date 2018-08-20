@@ -7,7 +7,7 @@ use Silex\Api\BootableProviderInterface;
 use Silktide\Syringe\ContainerBuilder;
 use Silex\Application;
 use Silktide\LazyBoy\Config\RouteLoader;
-use Silktide\Syringe\SyringeServiceProvider;
+use Silktide\LazyBoy\Provider\SyringeServiceProvider;
 
 /**
  * FrontController - loads routes, builds and runs the application
@@ -18,9 +18,9 @@ class FrontController
     const DEFAULT_APPLICATION_CLASS = "Silex\\Application";
 
     /**
-     * @var ContainerBuilder
+     * @var array
      */
-    protected $builder;
+    protected $config;
 
     /**
      * @var string
@@ -43,14 +43,15 @@ class FrontController
     protected $routeFilename = "routes.yml";
 
     /**
-     * @param ContainerBuilder $builder
-     * @param string $configDir
-     * @param string $applicationClass
+     * FrontController constructor.
+     * @param array $config
+     * @param $configDir
+     * @param $applicationClass
      * @param array $serviceProviders
      */
-    public function __construct(ContainerBuilder $builder, $configDir, $applicationClass, array $serviceProviders = [])
+    public function __construct(array $config, $configDir, string $applicationClass = self::DEFAULT_APPLICATION_CLASS, array $serviceProviders = [])
     {
-        $this->builder = $builder;
+        $this->config = $config;
         $this->configDir = $configDir;
         $this->setApplicationClass($applicationClass);
         $this->setProviders($serviceProviders);
@@ -108,7 +109,7 @@ class FrontController
         }
 
         if (!$syringeServiceProviderIncluded) {
-            $application->register(new SyringeServiceProvider($this->builder));
+            $application->register(new SyringeServiceProvider($this->config));
         }
 
         // load routes

@@ -2,3 +2,4 @@
 /.idea
 /app/*
 /web/*
+/composer.lock

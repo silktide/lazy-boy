@@ -5,9 +5,9 @@
   "license": "MIT",
   "homepage": "https://github.com/silktide/lazy-boy",
   "require": {
-    "php": ">=5.4.0",
+    "php": ">=7.1",
     "silex/silex": "^2.0",
-    "silktide/syringe": "^1.0",
+    "silktide/syringe": "~2",
     "composer-plugin-api": "^1.0"
   },
   "require-dev": {
