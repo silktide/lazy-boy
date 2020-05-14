@@ -3,3 +3,4 @@
 /app/*
 /web/*
 /composer.lock
+/.phpunit.result.cache

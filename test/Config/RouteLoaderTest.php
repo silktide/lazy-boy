@@ -5,6 +5,7 @@ namespace Silktide\LazyBoy\Test\Config;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\TestCase;
 use Silktide\LazyBoy\Config\RouteLoader;
 use Silktide\LazyBoy\Exception\RouteException;
 use Silex\Application;
@@ -12,7 +13,8 @@ use Silktide\Syringe\Loader\JsonLoader;
 use Silktide\Syringe\Loader\YamlLoader;
 use Silktide\LazyBoy\Security\SecurityContainer;
 
-class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
+class RouteLoaderTest extends TestCase
+{
 
     /**
      * @var \Mockery\Mock|Application
@@ -27,7 +29,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
     /** @var \Mockery\Mock $controllerCollection */
     protected $controllerCollection;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->controllerCollection = \Mockery::mock("Silex\\ContainerCollection");
         $this->app = \Mockery::mock("Silex\\Application");
@@ -475,7 +477,7 @@ class RouteLoaderTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         \Mockery::close();
     }

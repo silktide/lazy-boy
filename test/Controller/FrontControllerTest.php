@@ -4,6 +4,7 @@
  */
 namespace Silktide\LazyBoy\Test;
 
+use PHPUnit\Framework\TestCase;
 use Silktide\LazyBoy\Controller\FrontController;
 use Silktide\LazyBoy\Test\Mocks\MockApplication;
 use Silktide\Syringe\ContainerBuilder;
@@ -14,7 +15,7 @@ use Silex\Provider\ServiceControllerServiceProvider;
 /**
  *
  */
-class FrontControllerTest extends \PHPUnit_Framework_TestCase
+class FrontControllerTest extends TestCase
 {
 
     /**
@@ -37,7 +38,8 @@ class FrontControllerTest extends \PHPUnit_Framework_TestCase
      */
     protected $serviceProvider;
 
-    public function setUp()
+
+    public function setUp() : void
     {
         $this->builder = \Mockery::mock("Silktide\\Syringe\\ContainerBuilder")->shouldIgnoreMissing();
         $this->routeLoader = \Mockery::mock("Silktide\\LazyBoy\\RouteLoader")->shouldIgnoreMissing();
@@ -107,7 +109,7 @@ class FrontControllerTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         \Mockery::close();
     }
