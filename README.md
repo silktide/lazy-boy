@@ -2,15 +2,14 @@
 A skeleton REST API application, using [Silex] and [Syringe] with support for [Puzzle-DI]
 
 ## Summary
+Older versions of this project will make templates. Version 5 just works within the constraints of providing the
 Lazy Boy will create a skeleton [Silex] framework, so you can create REST APIs without having to bother with 
 boilerplate code.
 
 It is packaged with a route loader and uses [Syringe], which allows you to define both your routes and services in 
 configuration files, rather than PHP
 
-If you have the [Symfony console] installed, it will also create a console script and automatically load any commands it
-finds in the service container (any service name which ends with ".command" and is an instance of the Symfony Command 
-class). You can also use [Puzzle-DI] to load service configuration from modules.
+(The rest of this Readme is probably nonsense)
 
 ## Requirements
 
