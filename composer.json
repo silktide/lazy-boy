@@ -8,11 +8,10 @@
     "php": ">=7.1",
     "silex/silex": "^2.0",
     "silktide/syringe": "~3",
-    "composer-plugin-api": "^1.0"
+    "composer-plugin-api": "~1|~2"
   },
   "require-dev": {
-    "composer/composer": "1.0.*@dev",
-    "phpunit/phpunit": "~8",
+    "composer/composer": "2.0.*@dev",
     "mockery/mockery": "0.9.*",
     "mikey179/vfsstream": "1.4.*"
   },
@@ -23,9 +22,11 @@
   },
   "autoload": {
     "psr-4": {
-      "Silktide\\LazyBoy\\": "src",
-      "Silktide\\LazyBoy\\Test\\": "test"
+      "Silktide\\LazyBoy\\": "src"
     }
+  },
+  "autoload-dev": {
+    "Silktide\\LazyBoy\\Test\\": "test"
   },
   "extra": {
     "class": "Silktide\\LazyBoy\\Controller\\ScriptController"

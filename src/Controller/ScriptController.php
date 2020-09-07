@@ -264,4 +264,13 @@ class ScriptController implements PluginInterface, EventSubscriberInterface
         $output->write("<info>LazyBoy:</info> <comment>Created file '$outputFilePath'</comment>");
     }
 
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement deactivate() method.
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement uninstall() method.
+    }
 } 
